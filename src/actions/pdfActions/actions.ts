@@ -20,3 +20,13 @@ export const createPdf = async (file: File | null) => {
 
   //   return updatedPdf;
 };
+
+export const getPdfData = async (id: number) => {
+  const pdf = await prisma.pdfFile.findUnique({
+    where: { id },
+    select: { data: true },
+  });
+  if (pdf) {
+    return pdf.data.toString("base64");
+  }
+};

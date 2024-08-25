@@ -21,7 +21,7 @@ const Form = () => {
   };
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-3 p-10">
       <div>
         <input
           type="file"

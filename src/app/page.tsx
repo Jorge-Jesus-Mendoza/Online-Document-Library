@@ -1,18 +1,23 @@
 import Form from "@/components/Form";
 import PdfCard from "@/components/PdfCard";
+import PdfGrid from "@/components/PdfGrid";
 import prisma from "@/lib/prisma";
 
 export default async function Home() {
-  const pdfList = await prisma.pdfFile.findMany();
+  const pdfList = await prisma.pdfFile.findMany({
+    select: {
+      id: true,
+      name: true,
+      lastAccess: true,
+      createdAt: true,
+      mimeType: true,
+    },
+  });
   // console.log("🚀 ~ Home ~ pdfList:", pdfList);
   return (
     <div>
       <Form />
-      <div className="grid grid-cols-6 gap-5">
-        {pdfList.map((pdf) => (
-          <PdfCard key={pdf.id} {...pdf} />
-        ))}
-      </div>
+      <PdfGrid pdfList={pdfList} />
     </div>
   );
 }
