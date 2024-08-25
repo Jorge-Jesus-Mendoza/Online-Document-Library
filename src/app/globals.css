@@ -26,6 +26,10 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+.tumbnail-card {
+  border-color: red;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
