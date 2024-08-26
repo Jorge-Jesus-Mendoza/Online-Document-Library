@@ -14,7 +14,7 @@ interface Props {
 }
 const PdfGrid = ({ pdfList }: Props) => {
   return (
-    <div className="grid grid-cols-6 gap-5 p-10">
+    <div className="grid grid-cols-5 gap-5 p-10">
       {pdfList.map((pdf) => (
         <PdfCard key={pdf.id} {...pdf} />
       ))}
