@@ -37,7 +37,7 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
   ): Promise<PDFPage> => {
     const page = await pdfDoc.getPage(pageNumber);
 
-    const desiredWidth = 800; // Ajusta según tus necesidades
+    const desiredWidth = 800;
     const viewport = page.getViewport({ scale: 1 });
     const scale = desiredWidth / viewport.width;
     const scaledViewport = page.getViewport({ scale });
@@ -48,20 +48,12 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
       if ("transform" in textItem) {
         const [a, b, c, d, e, f] = textItem.transform;
 
-        // Aplicar la escala a las coordenadas
         const x = e * scale;
         const y = scaledViewport.height - f * scale;
 
-        // Aplicar rotación si es necesario
         const angle = (Math.atan2(b, a) * 180) / Math.PI;
 
-        // Determinar si es negrita, cursiva, etc.
-        const fontWeight = textItem.fontName.includes("Bold")
-          ? "bold"
-          : "normal";
-        const fontStyle = textItem.fontName.includes("Italic")
-          ? "italic"
-          : "normal";
+        const fontName = textItem.fontName || "sans-serif";
 
         return (
           <span
@@ -70,11 +62,9 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
               position: "absolute",
               transform: `translate(${x}px, ${y}px) rotate(${angle}deg)`,
               fontSize: `${textItem.height * scale}px`,
-              fontFamily: "sans-serif",
-              fontWeight,
-              fontStyle,
+              fontFamily: fontName,
               whiteSpace: "pre",
-              color: "#000000", // Por defecto, negro. Puedes ajustarlo si el color está disponible.
+              color: "#000000",
             }}
           >
             {textItem.str}
