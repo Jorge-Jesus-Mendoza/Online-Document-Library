@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@pdftron/webviewer": "^10.11.1",
     "@prisma/client": "^5.18.0",
+    "@react-pdf/renderer": "^3.4.4",
+    "@simplepdf/react-embed-pdf": "^1.8.0",
     "canvas": "^2.11.2",
+    "moment": "^2.30.1",
     "next": "14.2.6",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.5.136",
@@ -21,6 +25,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pdf-viewer-reactjs": "^2.2.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

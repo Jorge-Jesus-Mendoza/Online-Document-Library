@@ -26,6 +26,20 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+.pdf-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pdf-page {
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  color: black;
+}
+
 .tumbnail-card {
   border-color: red;
 }

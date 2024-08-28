@@ -39,14 +39,14 @@ const PdfCard = ({ id, name, lastAccess }: Props) => {
   }
 
   return (
-    <div className="border border-spacing-5 thumbnail-card cursor-pointer rounded-md">
-      <span>{truncateText(name, 25)}</span>
+    <div className="border border-spacing-5 thumbnail-card rounded-md">
+      <span className="mx-5 my-5">{truncateText(name, 25)}</span>
       {base64Data ? (
-        <PdfThumbnail imageSrc={base64Data} />
+        <PdfThumbnail imageSrc={base64Data} id={id} lastAccess={lastAccess} />
       ) : (
         <div
           role="status"
-          className="flex items-center justify-center h-[280px] max-w-sm bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700 w-[200px]"
+          className="flex items-center justify-center h-[280px] max-w-sm mx-5 my-5 bg-gray-300 rounded-lg animate-pulse dark:bg-gray-700 w-[200px]"
         >
           <svg
             className="w-10 h-10 text-gray-200 dark:text-gray-600"

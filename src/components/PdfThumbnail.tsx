@@ -4,13 +4,25 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjs from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.min.mjs"; // Importa directamente el worker
 import Image from "next/image";
+import {
+  IoCheckmarkDone,
+  IoEye,
+  IoLibrary,
+  IoTrash,
+  IoTrashBinOutline,
+} from "react-icons/io5";
+import { IoMdClock } from "react-icons/io";
+import moment from "moment";
+import Link from "next/link";
 
 interface Props {
   pdfBuffer?: Buffer;
   imageSrc?: string | null;
+  id: number;
+  lastAccess?: Date | null;
 }
 
-const PdfThumbnail = ({ imageSrc }: Props) => {
+const PdfThumbnail = ({ imageSrc, lastAccess, id }: Props) => {
   const [finalImage, setFinalImage] = useState<string | null>(null);
   const previousImageSrcRef = useRef<string | null>(null);
 
@@ -20,9 +32,9 @@ const PdfThumbnail = ({ imageSrc }: Props) => {
       const len = binaryString.length;
       const bytes = new Uint8Array(len);
 
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
+      Array.from(binaryString).forEach((char, i) => {
+        bytes[i] = char.charCodeAt(0);
+      });
 
       const loadingTask = pdfjs.getDocument({ data: bytes });
       const pdf = await loadingTask.promise;
@@ -59,9 +71,49 @@ const PdfThumbnail = ({ imageSrc }: Props) => {
   }, [imageSrc, loadPdf]);
 
   return (
-    <div>
+    <div className="flex justify-between p-5">
       {finalImage && (
-        <Image src={finalImage} alt="PDF Thumbnail" width={200} height={200} />
+        <>
+          <Image
+            src={finalImage}
+            alt="PDF Thumbnail"
+            width={200}
+            height={200}
+          />
+          <div className="flex flex-col ">
+            <Link
+              href={`/view/${id}`}
+              className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+            >
+              <IoEye size={25} />
+            </Link>
+            <button
+              type="button"
+              className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+            >
+              <IoCheckmarkDone size={25} />
+            </button>
+            <button
+              type="button"
+              className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+            >
+              <IoTrash size={25} />
+            </button>
+            <button
+              type="button"
+              className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+            >
+              <IoLibrary size={25} />
+            </button>
+            <button
+              type="button"
+              className="text-gray-900 hover:text-white border border-gray-800 hover:bg-gray-900 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-800"
+            >
+              <IoMdClock size={25} />
+            </button>
+          </div>
+          <span>{lastAccess && `Ultima lectura: ${moment(lastAccess)}`}</span>
+        </>
       )}
     </div>
   );
