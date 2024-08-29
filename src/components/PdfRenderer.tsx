@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker.min.mjs";
-import Image from "next/image";
 
 interface Props {
   base64Pdf: string;
@@ -40,18 +39,6 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
     return pdfDoc;
   };
 
-  const getImageSrc = async (
-    page: pdfjsLib.PDFPageProxy,
-    imageIndex: string
-  ): Promise<string> => {
-    const imgData = page.objs.get(imageIndex);
-    if (imgData && imgData.data) {
-      const blob = new Blob([imgData.data], { type: imgData.mimeType });
-      return URL.createObjectURL(blob);
-    }
-    return "";
-  };
-
   const renderPage = async (
     pdfDoc: pdfjsLib.PDFDocumentProxy,
     pageNumber: number
@@ -63,33 +50,11 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
     const scale = desiredWidth / viewport.width;
     const scaledViewport = page.getViewport({ scale });
 
-    const [textContent, operatorList] = await Promise.all([
+    const [textContent] = await Promise.all([
       page.getTextContent(),
       page.getOperatorList(),
     ]);
-
-    const images: ImageData[] = [];
-    const imagePromises = operatorList.fnArray.map(async (fn, i) => {
-      if (fn === pdfjsLib.OPS.paintImageXObject) {
-        const imgIndex = operatorList.argsArray[i][0].toString(); // Convert number to string
-        try {
-          const imgData = await getImageSrc(page, imgIndex);
-          if (imgData) {
-            images.push({
-              src: imgData,
-              x: 0, // Placeholder for actual position
-              y: 0, // Placeholder for actual position
-              width: 100, // Placeholder for actual width
-              height: 100, // Placeholder for actual height
-            });
-          }
-        } catch (error) {
-          console.error(`Error loading image with index ${imgIndex}:`, error);
-        }
-      }
-    });
-
-    await Promise.all(imagePromises);
+    console.log("🚀 ~ page:", page);
 
     const content = [
       ...textContent.items.map((textItem: any, index: number) => {
@@ -121,22 +86,6 @@ const PdfRenderer: React.FC<Props> = ({ base64Pdf }) => {
         }
         return null;
       }),
-      ...images.map((imgData, index) => (
-        <Image
-          key={index}
-          src={imgData.src}
-          alt={`image-${index}`}
-          layout="intrinsic"
-          width={imgData.width * scale}
-          height={imgData.height * scale}
-          style={{
-            position: "absolute",
-            transform: `translate(${imgData.x * scale}px, ${
-              scaledViewport.height - imgData.y * scale
-            }px)`,
-          }}
-        />
-      )),
     ];
 
     return {
