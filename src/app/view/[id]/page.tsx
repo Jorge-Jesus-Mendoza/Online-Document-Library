@@ -18,7 +18,7 @@ export default async function PdfViewerPage(props: Props) {
         {/* {pdf && <PdfViewer pdfSrc={pdf} />} */}
         {/* {pdf && <AlterPdfViewer pdfData={pdf} />} */}
         {/* {pdf && <PdfViewerV3 pdfData={pdf} />} */}
-        {pdf && <PdfRenderer base64Pdf={pdf} />}
+        {pdf && <PdfRenderer base64={pdf} />}
       </div>
     </div>
   );

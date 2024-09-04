@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import * as pdfjs from "pdfjs-dist";
-import "pdfjs-dist/build/pdf.worker.min.mjs"; // Importa directamente el worker
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf"; // Importa la versión legacy para compatibilidad
+import "pdfjs-dist/legacy/build/pdf.worker.entry"; // Importa el worker correctamente
 import Image from "next/image";
 import {
   IoCheckmarkDone,
@@ -32,9 +32,9 @@ const PdfThumbnail = ({ imageSrc, lastAccess, id }: Props) => {
       const len = binaryString.length;
       const bytes = new Uint8Array(len);
 
-      Array.from(binaryString).forEach((char, i) => {
-        bytes[i] = char.charCodeAt(0);
-      });
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
 
       const loadingTask = pdfjs.getDocument({ data: bytes });
       const pdf = await loadingTask.promise;
