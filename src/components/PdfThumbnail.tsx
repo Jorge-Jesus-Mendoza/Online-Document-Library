@@ -39,7 +39,7 @@ const PdfThumbnail = ({ imageSrc, lastAccess, id }: Props) => {
       const loadingTask = pdfjs.getDocument({ data: bytes });
       const pdf = await loadingTask.promise;
       const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
+      const viewport = page.getViewport({ scale: 0.5 });
 
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d") as CanvasRenderingContext2D;
