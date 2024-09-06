@@ -5,19 +5,21 @@ import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "pdfjs-dist/legacy/build/pdf.worker.entry";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
-import { useCallback, useState } from "react";
-import Link from "next/link";
+import { useCallback, useState, memo, useEffect } from "react";
 import debounce from "lodash/debounce";
+import { useRouter } from "next/navigation";
 
 interface Props {
   base64: string;
 }
 
-const PdfRenderer = ({ base64 }: Props) => {
+const PdfRenderer = memo(({ base64 }: Props) => {
   const [scale, setScale] = useState<number>(1);
+  const [ShowViewer, setShowViewer] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pdfData = `data:application/pdf;base64,${base64}`;
   const zoomPluginInstance = zoomPlugin();
+  const router = useRouter();
   const { zoomTo } = zoomPluginInstance;
 
   const pageNavigationPluginInstance = pageNavigationPlugin();
@@ -27,10 +29,11 @@ const PdfRenderer = ({ base64 }: Props) => {
   }, []);
 
   // Función para aplicar el zoom con debounce
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedZoomTo = useCallback(
     debounce((scale: number) => {
       zoomTo(scale);
-    }, 300),
+    }, 300), // Ajustar el retraso según sea necesario
     [zoomTo]
   );
 
@@ -41,13 +44,19 @@ const PdfRenderer = ({ base64 }: Props) => {
     debouncedZoomTo(newScale); // Aplicar el zoom con debounce
   };
 
+  useEffect(() => {
+    if (!ShowViewer) {
+      router.push("/");
+    }
+  }, [ShowViewer, router]);
+
   return (
     <div className="w-4/6 bg-blue-300">
       <div className="flex justify-center">
         <div className="flex bg-red-400 fixed mb-10 z-10">
-          <Link href="/" className="mx-5">
+          <button onClick={() => setShowViewer(false)} className="mx-5">
             Inicio
-          </Link>
+          </button>
 
           <input
             type="range"
@@ -73,15 +82,20 @@ const PdfRenderer = ({ base64 }: Props) => {
         </div>
       </div>
       <div className="mt-10">
-        <Viewer
-          fileUrl={pdfData}
-          plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
-          defaultScale={1}
-          onPageChange={handlePageChange}
-        />
+        {ShowViewer && (
+          <Viewer
+            fileUrl={pdfData}
+            plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
+            defaultScale={1}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
     </div>
   );
-};
+});
+
+// Definir el nombre de pantalla para el componente
+PdfRenderer.displayName = "PdfRenderer";
 
 export default PdfRenderer;
