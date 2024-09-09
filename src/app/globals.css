@@ -40,6 +40,58 @@ body {
   color: black;
 }
 
+.annotation-modal {
+  border: 1px solid black;
+  background-color: white;
+  padding: 10px;
+  box-sizing: border-box;
+  position: absolute;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  cursor: move;
+  background-color: #f0f0f0;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: black;
+}
+
+.close-button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 16px;
+}
+
+.annotation-textarea {
+  width: 100%;
+  height: 80%;
+  margin-top: 10px;
+  box-sizing: border-box;
+  color: black;
+  resize: none;
+}
+
+.save-button {
+  margin-top: 10px;
+  cursor: pointer;
+  color: black;
+  background: none;
+  border: 1px solid black;
+  padding: 5px 10px;
+  align-self: flex-end;
+}
+
 .tumbnail-card {
   border-color: red;
 }

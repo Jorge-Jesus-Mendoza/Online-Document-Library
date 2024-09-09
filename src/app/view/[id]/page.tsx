@@ -1,5 +1,6 @@
 import { getPdfData } from "@/actions/pdfActions/actions";
 import PdfRenderer from "@/components/PdfRenderer";
+import PdfWithAnnotations from "@/components/PdfWithAnnotations";
 
 interface Props {
   params: {
@@ -12,7 +13,7 @@ export default async function PdfViewerPage(props: Props) {
   return (
     <div>
       <div className="flex justify-center">
-        {pdf && <PdfRenderer base64={pdf} />}
+        {pdf && <PdfWithAnnotations base64={pdf} />}
       </div>
     </div>
   );

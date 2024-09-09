@@ -67,7 +67,7 @@ const PdfRenderer = memo(({ base64 }: Props) => {
           <button onClick={() => setShowViewer(false)} className="mx-5">
             Inicio
           </button>
-          <button onClick={toggleModal}>Abrir Anotaciones</button>
+          {/* <button onClick={toggleModal}>Abrir Anotaciones</button> */}
 
           <input
             type="range"
@@ -95,13 +95,13 @@ const PdfRenderer = memo(({ base64 }: Props) => {
       <div className="mt-10">
         {ShowViewer && (
           <>
-            {showModal && (
+            {/* {showModal && (
               <AnnotationModal
                 onClose={toggleModal}
                 onSave={handleSaveAnnotation}
                 initialPosition={{ x: 100, y: 100 }} // Añadido initialPosition
               />
-            )}
+            )} */}
             <Viewer
               fileUrl={pdfData}
               plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
