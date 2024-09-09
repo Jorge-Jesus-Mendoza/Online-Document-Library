@@ -12,9 +12,11 @@ import AnnotationModal from "./AnnotationModal";
 
 interface Props {
   base64: string;
+
+  children: JSX.Element;
 }
 
-const PdfRenderer = memo(({ base64 }: Props) => {
+const PdfRenderer = memo(({ base64, children }: Props) => {
   const [scale, setScale] = useState<number>(1);
   const [ShowViewer, setShowViewer] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -89,6 +91,7 @@ const PdfRenderer = memo(({ base64 }: Props) => {
             aria-label="Zoom level input"
             style={{ color: "black" }}
           />
+          {children}
           <p>Página actual: {currentPage}</p>
         </div>
       </div>

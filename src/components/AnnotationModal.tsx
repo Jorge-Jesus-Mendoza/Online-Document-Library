@@ -12,7 +12,12 @@ const AnnotationModal = memo(
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
     const [size, setSize] = useState({ width: 300, height: 200 });
-    const [isDragging, setIsDragging] = useState(false);
+    const isDragging = useRef(false);
+    const lastMousePosition = useRef<{ x: number; y: number }>({
+      x: initialPosition.x,
+      y: initialPosition.y,
+    });
+    const frameId = useRef<number | null>(null);
 
     const handleSave = () => {
       if (annotations.trim() !== "") {
@@ -28,37 +33,49 @@ const AnnotationModal = memo(
       });
     };
 
+    const updatePosition = (x: number, y: number) => {
+      setPosition({ x, y });
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
+      if (isDragging.current) {
+        lastMousePosition.current = {
           x: e.clientX - size.width / 2,
-          y: e.clientY - 20, // Ajuste para que el modal no se posicione debajo del mouse
-        });
+          y: e.clientY - 20,
+        };
+        if (!frameId.current) {
+          frameId.current = requestAnimationFrame(() => {
+            updatePosition(
+              lastMousePosition.current.x,
+              lastMousePosition.current.y
+            );
+            frameId.current = null; // Reset the frame ID
+          });
+        }
       }
     };
 
     const handleMouseDown = () => {
-      setIsDragging(true);
+      isDragging.current = true;
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      isDragging.current = false;
+      if (frameId.current) {
+        cancelAnimationFrame(frameId.current);
+        frameId.current = null;
+      }
     };
 
     useEffect(() => {
-      if (isDragging) {
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleMouseUp);
-      } else {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
-      }
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
       };
-    }, [isDragging]);
+    }, []);
 
     return (
       <div
@@ -90,8 +107,8 @@ const AnnotationModal = memo(
                 justifyContent: "space-between",
                 color: "black",
               }}
-              onMouseDown={handleMouseDown} // Empieza a seguir el mouse al hacer clic
-              onMouseUp={handleMouseUp} // Deja de seguir el mouse al soltar el clic
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
             >
               <h3>Anotaciones</h3>
               <button onClick={onClose} style={{ cursor: "pointer" }}>
@@ -110,7 +127,6 @@ const AnnotationModal = memo(
               }}
               placeholder="Escribe tus anotaciones aquí..."
             />
-            <span className="text-slate-900">{JSON.stringify(position)}</span>
             <button
               onClick={handleSave}
               style={{ marginTop: "10px", cursor: "pointer", color: "black" }}
