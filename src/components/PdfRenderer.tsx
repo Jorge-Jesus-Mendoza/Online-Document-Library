@@ -8,6 +8,7 @@ import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 import { useCallback, useState, memo, useEffect } from "react";
 import debounce from "lodash/debounce";
 import { useRouter } from "next/navigation";
+import AnnotationModal from "./AnnotationModal";
 
 interface Props {
   base64: string;
@@ -21,6 +22,16 @@ const PdfRenderer = memo(({ base64 }: Props) => {
   const zoomPluginInstance = zoomPlugin();
   const router = useRouter();
   const { zoomTo } = zoomPluginInstance;
+  const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
+
+  const handleSaveAnnotation = (text: string) => {
+    console.log("Anotación guardada:", text);
+    // Aquí podrías manejar cómo se guardan las anotaciones
+  };
 
   const pageNavigationPluginInstance = pageNavigationPlugin();
 
@@ -29,11 +40,10 @@ const PdfRenderer = memo(({ base64 }: Props) => {
   }, []);
 
   // Función para aplicar el zoom con debounce
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedZoomTo = useCallback(
     debounce((scale: number) => {
       zoomTo(scale);
-    }, 300), // Ajustar el retraso según sea necesario
+    }, 300),
     [zoomTo]
   );
 
@@ -41,7 +51,7 @@ const PdfRenderer = memo(({ base64 }: Props) => {
     const newScale = Number(event.target.value);
     if (newScale < 0.5 || newScale > 2) return; // Validar rango
     setScale(newScale);
-    debouncedZoomTo(newScale); // Aplicar el zoom con debounce
+    debouncedZoomTo(newScale);
   };
 
   useEffect(() => {
@@ -57,6 +67,7 @@ const PdfRenderer = memo(({ base64 }: Props) => {
           <button onClick={() => setShowViewer(false)} className="mx-5">
             Inicio
           </button>
+          <button onClick={toggleModal}>Abrir Anotaciones</button>
 
           <input
             type="range"
@@ -83,12 +94,21 @@ const PdfRenderer = memo(({ base64 }: Props) => {
       </div>
       <div className="mt-10">
         {ShowViewer && (
-          <Viewer
-            fileUrl={pdfData}
-            plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
-            defaultScale={1}
-            onPageChange={handlePageChange}
-          />
+          <>
+            {showModal && (
+              <AnnotationModal
+                onClose={toggleModal}
+                onSave={handleSaveAnnotation}
+                initialPosition={{ x: 100, y: 100 }} // Añadido initialPosition
+              />
+            )}
+            <Viewer
+              fileUrl={pdfData}
+              plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
+              defaultScale={1}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
     </div>

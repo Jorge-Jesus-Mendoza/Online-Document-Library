@@ -40,18 +40,6 @@ const PdfTectExtractor: React.FC<Props> = ({ base64Pdf }) => {
     return pdfDoc;
   };
 
-  const getImageSrc = async (
-    page: pdfjsLib.PDFPageProxy,
-    imageIndex: string
-  ): Promise<string> => {
-    const imgData = page.objs.get(imageIndex);
-    if (imgData && imgData.data) {
-      const blob = new Blob([imgData.data], { type: imgData.mimeType });
-      return URL.createObjectURL(blob);
-    }
-    return "";
-  };
-
   const renderPage = async (
     pdfDoc: pdfjsLib.PDFDocumentProxy,
     pageNumber: number
@@ -67,29 +55,6 @@ const PdfTectExtractor: React.FC<Props> = ({ base64Pdf }) => {
       page.getTextContent(),
       page.getOperatorList(),
     ]);
-
-    const images: ImageData[] = [];
-    const imagePromises = operatorList.fnArray.map(async (fn, i) => {
-      if (fn === pdfjsLib.OPS.paintImageXObject) {
-        const imgIndex = operatorList.argsArray[i][0].toString(); // Convert number to string
-        try {
-          const imgData = await getImageSrc(page, imgIndex);
-          if (imgData) {
-            images.push({
-              src: imgData,
-              x: 0, // Placeholder for actual position
-              y: 0, // Placeholder for actual position
-              width: 100, // Placeholder for actual width
-              height: 100, // Placeholder for actual height
-            });
-          }
-        } catch (error) {
-          console.error(`Error loading image with index ${imgIndex}:`, error);
-        }
-      }
-    });
-
-    await Promise.all(imagePromises);
 
     const content = [
       ...textContent.items.map((textItem: any, index: number) => {
@@ -121,22 +86,6 @@ const PdfTectExtractor: React.FC<Props> = ({ base64Pdf }) => {
         }
         return null;
       }),
-      ...images.map((imgData, index) => (
-        <Image
-          key={index}
-          src={imgData.src}
-          alt={`image-${index}`}
-          layout="intrinsic"
-          width={imgData.width * scale}
-          height={imgData.height * scale}
-          style={{
-            position: "absolute",
-            transform: `translate(${imgData.x * scale}px, ${
-              scaledViewport.height - imgData.y * scale
-            }px)`,
-          }}
-        />
-      )),
     ];
 
     return {
@@ -169,22 +118,26 @@ const PdfTectExtractor: React.FC<Props> = ({ base64Pdf }) => {
 
   return (
     <div className="pdf-container" style={{ position: "relative" }}>
-      {pdfPages.map((page) => (
-        <div
-          key={page.key}
-          className="pdf-page"
-          style={{
-            position: "relative",
-            width: `${page.width}px`,
-            height: `${page.height}px`,
-            border: "1px solid #ddd",
-            margin: "10px 0",
-            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          {page.content}
-        </div>
-      ))}
+      {pdfPages ? (
+        pdfPages.map((page) => (
+          <div
+            key={page.key}
+            className="pdf-page"
+            style={{
+              position: "relative",
+              width: `${page.width}px`,
+              height: `${page.height}px`,
+              border: "1px solid #ddd",
+              margin: "10px 0",
+              boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {page.content}
+          </div>
+        ))
+      ) : (
+        <span>Cargando...</span>
+      )}
     </div>
   );
 };
