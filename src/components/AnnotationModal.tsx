@@ -41,7 +41,7 @@ const AnnotationModal = memo(
       if (isDragging.current) {
         lastMousePosition.current = {
           x: e.clientX - size.width / 2,
-          y: e.clientY - 20,
+          y: e.clientY - 20 + window.scrollY, // Ajustar la posición Y relativa al scroll
         };
         if (!frameId.current) {
           frameId.current = requestAnimationFrame(() => {
@@ -49,7 +49,7 @@ const AnnotationModal = memo(
               lastMousePosition.current.x,
               lastMousePosition.current.y
             );
-            frameId.current = null; // Reset the frame ID
+            frameId.current = null;
           });
         }
       }
@@ -80,7 +80,6 @@ const AnnotationModal = memo(
     return (
       <div
         style={{
-          position: "absolute",
           left: position.x,
           top: position.y,
           zIndex: 1000,
@@ -88,6 +87,7 @@ const AnnotationModal = memo(
           backgroundColor: "white",
           padding: "10px",
           boxSizing: "border-box",
+          position: "absolute", // Cambiado a 'absolute' para evitar que se mantenga fijo en la pantalla
         }}
       >
         <Resizable
@@ -96,7 +96,9 @@ const AnnotationModal = memo(
           minWidth={200}
           minHeight={100}
         >
-          <div style={{ width: "100%", height: "100%" }}>
+          <div
+            style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+          >
             <div
               className="modal-header"
               style={{
@@ -127,9 +129,17 @@ const AnnotationModal = memo(
               }}
               placeholder="Escribe tus anotaciones aquí..."
             />
+            <span className="bg-white text-slate-900">
+              {JSON.stringify(position)}
+            </span>
             <button
               onClick={handleSave}
-              style={{ marginTop: "10px", cursor: "pointer", color: "black" }}
+              style={{
+                marginTop: "10px",
+                cursor: "pointer",
+                color: "black",
+                backgroundColor: "white",
+              }}
             >
               Guardar
             </button>
