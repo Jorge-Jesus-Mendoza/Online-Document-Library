@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import PdfRenderer from "./PdfRenderer";
 import AnnotationModal from "./AnnotationModal";
+import { debounce } from "lodash";
+import { zoomPlugin } from "@react-pdf-viewer/zoom";
+import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 
 interface Props {
   base64: string;
@@ -10,8 +13,14 @@ interface Props {
 
 const PdfWithAnnotations = ({ base64 }: Props) => {
   const [annotations, setAnnotations] = useState<string[]>([]);
+  const [ShowViewer, setShowViewer] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [showModal, setShowModal] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 100, y: 100 });
+  const [scale, setScale] = useState<number>(1);
+  const pageNavigationPluginInstance = pageNavigationPlugin();
+  const zoomPluginInstance = zoomPlugin();
+  const { zoomTo } = zoomPluginInstance;
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -33,11 +42,68 @@ const PdfWithAnnotations = ({ base64 }: Props) => {
     setShowModal(true);
   };
 
+  const handlePageChange = useCallback((e: { currentPage: number }) => {
+    setCurrentPage(e.currentPage + 1);
+  }, []);
+
+  // Función para aplicar el zoom con debounce
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedZoomTo = useCallback(
+    debounce((scale: number) => {
+      zoomTo(scale);
+    }, 300),
+    [zoomTo]
+  );
+
+  const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation(); // Evita que el zoom dispare eventos como clic
+    const newScale = Number(event.target.value);
+    if (newScale < 0.5 || newScale > 2) return; // Validar rango
+    setScale(newScale);
+    debouncedZoomTo(newScale);
+  };
+
   return (
     <div className="w-full flex justify-center">
       {/* Componente que muestra el PDF */}
-      <PdfRenderer base64={base64}>
-        <button onClick={handleOpenModal}>Abrir Anotaciones</button>
+      <PdfRenderer
+        base64={base64}
+        zoomPluginInstance={zoomPluginInstance}
+        ShowViewer={ShowViewer}
+        handlePageChange={handlePageChange}
+        pageNavigationPluginInstance={pageNavigationPluginInstance}
+      >
+        <div className="flex justify-center">
+          <div className="flex bg-red-400 fixed mb-10 z-10">
+            <button onClick={() => setShowViewer(false)} className="mx-5">
+              Inicio
+            </button>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              className="bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              step="0.1"
+              value={scale}
+              onChange={handleZoomChange}
+              aria-label="Zoom level"
+            />
+            <input
+              type="number"
+              onChange={handleZoomChange}
+              value={scale}
+              min={0.5}
+              max={2}
+              step="0.1"
+              aria-label="Zoom level input"
+              style={{ color: "black" }}
+            />
+
+            <button onClick={handleOpenModal}>Abrir Anotaciones</button>
+
+            <span>Pagina Actual: {currentPage}</span>
+          </div>
+        </div>
       </PdfRenderer>
 
       {/* Modal de anotaciones fuera del contenedor del PDF */}
