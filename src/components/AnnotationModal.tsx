@@ -1,23 +1,31 @@
+"use client";
+
 import React, { useState, useRef, useEffect, memo } from "react";
 import { Resizable } from "re-resizable";
 
 interface AnnotationModalProps {
   onClose: () => void;
   onSave: (annotation: string) => void;
-  initialPosition: { x: number; y: number };
+  initialPosition?: { x: number; y: number }; // Haz que initialPosition sea opcional
 }
 
 const AnnotationModal = memo(
-  ({ onClose, onSave, initialPosition }: AnnotationModalProps) => {
+  ({
+    onClose,
+    onSave,
+    initialPosition = { x: 100, y: 100 },
+  }: AnnotationModalProps) => {
+    // Se asegura de que siempre haya un valor predeterminado para initialPosition
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
     const [size, setSize] = useState({ width: 300, height: 200 });
-    const isDragging = useRef(false);
+    const [draggingMode, setDraggingMode] = useState(false);
     const lastMousePosition = useRef<{ x: number; y: number }>({
       x: initialPosition.x,
       y: initialPosition.y,
     });
     const frameId = useRef<number | null>(null);
+    const scrollOffset = useRef<number>(window.scrollY);
 
     const handleSave = () => {
       if (annotations.trim() !== "") {
@@ -38,10 +46,10 @@ const AnnotationModal = memo(
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging.current) {
+      if (draggingMode) {
         lastMousePosition.current = {
           x: e.clientX - size.width / 2,
-          y: e.clientY - 20 + window.scrollY, // Ajustar la posición Y relativa al scroll
+          y: e.clientY - 20 + scrollOffset.current,
         };
         if (!frameId.current) {
           frameId.current = requestAnimationFrame(() => {
@@ -55,27 +63,31 @@ const AnnotationModal = memo(
       }
     };
 
-    const handleMouseDown = () => {
-      isDragging.current = true;
+    const handleScroll = () => {
+      if (draggingMode) {
+        const newScrollY = window.scrollY;
+        const scrollDiff = newScrollY - scrollOffset.current;
+        scrollOffset.current = newScrollY;
+        updatePosition(position.x, position.y + scrollDiff);
+      }
     };
 
-    const handleMouseUp = () => {
-      isDragging.current = false;
-      if (frameId.current) {
-        cancelAnimationFrame(frameId.current);
-        frameId.current = null;
-      }
+    const handleMouseClick = () => {
+      setDraggingMode((prev) => !prev);
     };
 
     useEffect(() => {
       document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("click", handleMouseClick);
+      window.addEventListener("scroll", handleScroll);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("click", handleMouseClick);
+        window.removeEventListener("scroll", handleScroll);
       };
-    }, []);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [draggingMode, position]);
 
     return (
       <div
@@ -87,8 +99,9 @@ const AnnotationModal = memo(
           backgroundColor: "white",
           padding: "10px",
           boxSizing: "border-box",
-          position: "absolute", // Cambiado a 'absolute' para evitar que se mantenga fijo en la pantalla
+          position: "absolute",
         }}
+        onClick={handleMouseClick}
       >
         <Resizable
           size={size}
@@ -109,8 +122,6 @@ const AnnotationModal = memo(
                 justifyContent: "space-between",
                 color: "black",
               }}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
             >
               <h3>Anotaciones</h3>
               <button onClick={onClose} style={{ cursor: "pointer" }}>
