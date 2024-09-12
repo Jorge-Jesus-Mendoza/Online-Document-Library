@@ -72,22 +72,37 @@ const AnnotationModal = memo(
       }
     };
 
-    const handleMouseClick = () => {
-      setDraggingMode((prev) => !prev);
-    };
-
     useEffect(() => {
       document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("click", handleMouseClick);
+      document.addEventListener("click", handleDocumentClick);
       window.addEventListener("scroll", handleScroll);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("click", handleMouseClick);
+        document.removeEventListener("click", handleDocumentClick);
         window.removeEventListener("scroll", handleScroll);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [draggingMode, position]);
+
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Evitar activar el draggingMode si el clic es en el control de zoom
+      if (
+        target.closest("input[type='range']") ||
+        target.closest("input[type='number']")
+      ) {
+        return;
+      }
+
+      // Cambiar el estado entre arrastrar/no arrastrar
+      setDraggingMode((prev) => !prev);
+    };
+
+    const handleClickInComponent = (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation(); // Evitar que el clic se propague al document
+    };
 
     return (
       <div
@@ -101,7 +116,7 @@ const AnnotationModal = memo(
           boxSizing: "border-box",
           position: "absolute",
         }}
-        onClick={handleMouseClick}
+        onClick={handleClickInComponent}
       >
         <Resizable
           size={size}

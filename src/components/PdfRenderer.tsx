@@ -50,6 +50,7 @@ const PdfRenderer = memo(({ base64, children }: Props) => {
   );
 
   const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation(); // Evita que el zoom dispare eventos como clic
     const newScale = Number(event.target.value);
     if (newScale < 0.5 || newScale > 2) return; // Validar rango
     setScale(newScale);
