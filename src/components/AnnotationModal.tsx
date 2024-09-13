@@ -2,35 +2,32 @@
 
 import React, { useState, useRef, useEffect, memo } from "react";
 import { Resizable } from "re-resizable";
+import { addNote } from "@/actions/pdfActions/actions";
+import { useRouter } from "next/navigation";
 
 interface AnnotationModalProps {
   onClose: () => void;
-  onSave: (annotation: string) => void;
+  pdfId: string;
   initialPosition?: { x: number; y: number }; // Haz que initialPosition sea opcional
 }
 
 const AnnotationModal = memo(
   ({
     onClose,
-    onSave,
     initialPosition = { x: 100, y: 100 },
+    pdfId,
   }: AnnotationModalProps) => {
     // Se asegura de que siempre haya un valor predeterminado para initialPosition
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
     const [size, setSize] = useState({ width: 300, height: 200 });
     const [draggingMode, setDraggingMode] = useState(false);
-    const lastMousePosition = useRef<{ x: number; y: number }>({
-      x: initialPosition.x,
-      y: initialPosition.y,
-    });
+    const lastMousePosition = useRef<{ x: number; y: number }>(initialPosition);
     const frameId = useRef<number | null>(null);
     const scrollOffset = useRef<number>(window.scrollY);
+    const router = useRouter();
 
     const handleSave = () => {
-      if (annotations.trim() !== "") {
-        onSave(annotations);
-      }
       onClose();
     };
 
@@ -88,20 +85,24 @@ const AnnotationModal = memo(
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // Evitar activar el draggingMode si el clic es en el control de zoom
-      if (
-        target.closest("input[type='range']") ||
-        target.closest("input[type='number']")
-      ) {
-        return;
+      // Solo activar el draggingMode si el clic es en el div con la clase 'modal-header'
+      if (target.closest(".modal-header")) {
+        setDraggingMode((prev) => !prev);
       }
-
-      // Cambiar el estado entre arrastrar/no arrastrar
-      setDraggingMode((prev) => !prev);
     };
 
     const handleClickInComponent = (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation(); // Evitar que el clic se propague al document
+    };
+
+    const handleSaveAnnotation = async () => {
+      if (annotations.trim() !== "") {
+        const note = await addNote(pdfId, annotations, position.x, position.y);
+        if (note) {
+          onClose();
+          router.refresh();
+        }
+      }
     };
 
     return (
@@ -159,7 +160,7 @@ const AnnotationModal = memo(
               {JSON.stringify(position)}
             </span>
             <button
-              onClick={handleSave}
+              onClick={handleSaveAnnotation}
               style={{
                 marginTop: "10px",
                 cursor: "pointer",

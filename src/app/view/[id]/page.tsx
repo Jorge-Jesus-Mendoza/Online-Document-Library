@@ -1,19 +1,25 @@
-import { getPdfData } from "@/actions/pdfActions/actions";
-import PdfRenderer from "@/components/PdfRenderer";
+import { getNotes, getPdfData } from "@/actions/pdfActions/actions";
 import PdfWithAnnotations from "@/components/PdfWithAnnotations";
 
 interface Props {
   params: {
-    id: number;
+    id: string;
   };
   searchParams?: string[] | any;
 }
 export default async function PdfViewerPage(props: Props) {
-  const pdf = await getPdfData(Number(props.params.id));
+  const pdf = await getPdfData(props.params.id);
+  const notes = await getNotes(props.params.id);
   return (
     <div>
       <div className="flex justify-center">
-        {pdf && <PdfWithAnnotations base64={pdf} />}
+        {pdf && notes && (
+          <PdfWithAnnotations
+            base64={pdf}
+            pdfId={props.params.id}
+            notes={notes}
+          />
+        )}
       </div>
     </div>
   );

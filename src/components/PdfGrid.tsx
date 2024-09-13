@@ -4,7 +4,7 @@ import React from "react";
 import PdfCard from "./PdfCard";
 
 type Pdf = {
-  id: number;
+  id: string;
   name: string;
   mimeType: string;
   createdAt: Date;

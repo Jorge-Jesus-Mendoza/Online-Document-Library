@@ -7,12 +7,22 @@ import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 
+type note = {
+  id: string;
+  pdfId: string;
+  content: string;
+  createdAt: Date;
+  xPosition: number;
+  yPosition: number;
+};
+
 interface Props {
   base64: string;
+  pdfId: string;
+  notes: note[];
 }
 
-const PdfWithAnnotations = ({ base64 }: Props) => {
-  const [annotations, setAnnotations] = useState<string[]>([]);
+const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const [ShowViewer, setShowViewer] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showModal, setShowModal] = useState(false);
@@ -24,11 +34,6 @@ const PdfWithAnnotations = ({ base64 }: Props) => {
 
   const toggleModal = () => {
     setShowModal(!showModal);
-  };
-
-  const handleSaveAnnotation = (annotation: string) => {
-    setAnnotations((prevAnnotations) => [...prevAnnotations, annotation]);
-    toggleModal(); // Cerrar el modal después de guardar
   };
 
   const handleOpenModal = () => {
@@ -110,15 +115,26 @@ const PdfWithAnnotations = ({ base64 }: Props) => {
       {showModal && (
         <AnnotationModal
           onClose={toggleModal}
-          onSave={handleSaveAnnotation}
           initialPosition={modalPosition}
+          pdfId={pdfId}
         />
       )}
 
       {/* Mostrar las anotaciones guardadas */}
       <div className="annotations-list">
-        {annotations.map((annotation, index) => (
-          <p key={index}>{annotation}</p>
+        {notes.map((annotation, index) => (
+          <p
+            key={index}
+            style={{
+              position: "absolute",
+              left: annotation.xPosition * scale, // Escalar la posición en X
+              top: annotation.yPosition * scale, // Escalar la posición en Y
+              transform: `scale(${scale})`, // Ajustar el tamaño del texto al zoom
+              transformOrigin: "top left", // Asegurarse de que el escalado se base en la esquina superior izquierda
+            }}
+          >
+            {annotation.content}
+          </p>
         ))}
       </div>
     </div>

@@ -14,10 +14,21 @@ datasource db {
 }
 
 model PdfFile {
-  id         Int       @id @default(autoincrement())
+  id         String    @id @default(uuid())
   name       String
   mimeType   String
   data       Bytes
   createdAt  DateTime  @default(now())
   lastAccess DateTime?
+  notes      Note[]
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  pdfId     String
+  content   String
+  pdfFile   PdfFile  @relation(fields: [pdfId], references: [id])
+  createdAt DateTime @default(now())
+  xPosition Int
+  yPosition Int
 }

@@ -18,7 +18,7 @@ import Link from "next/link";
 interface Props {
   pdfBuffer?: Buffer;
   imageSrc?: string | null;
-  id: number;
+  id: string;
   lastAccess?: Date | null;
 }
 

@@ -5,7 +5,7 @@ import PdfThumbnail from "./PdfThumbnail";
 import { getPdfData } from "@/actions/pdfActions/actions";
 
 interface Props {
-  id: number;
+  id: string;
   name: string;
   mimeType: string;
   createdAt: Date;
@@ -20,7 +20,7 @@ const PdfCard = ({ id, name, lastAccess }: Props) => {
       if (!base64Data) {
         // Cargar datos binarios bajo demanda
 
-        const pdf = await getPdfData(id);
+        const pdf = await getPdfData(`${id}`);
 
         if (pdf) {
           setBase64Data(pdf);
