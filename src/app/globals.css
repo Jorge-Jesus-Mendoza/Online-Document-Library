@@ -58,12 +58,12 @@ body {
 
 .modal-header {
   cursor: move;
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0;
   padding: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: black;
+  color: black; */
 }
 
 .close-button {

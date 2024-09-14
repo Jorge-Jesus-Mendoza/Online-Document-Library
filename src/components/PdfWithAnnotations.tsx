@@ -6,6 +6,7 @@ import AnnotationModal from "./AnnotationModal";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
+import AnotationArea from "./AnotationArea";
 
 type note = {
   id: string;

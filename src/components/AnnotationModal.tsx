@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, memo } from "react";
 import { Resizable } from "re-resizable";
 import { addNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
+import AnotationArea from "./AnotationArea";
 
 interface AnnotationModalProps {
   onClose: () => void;
@@ -17,7 +18,6 @@ const AnnotationModal = memo(
     initialPosition = { x: 100, y: 100 },
     pdfId,
   }: AnnotationModalProps) => {
-    // Se asegura de que siempre haya un valor predeterminado para initialPosition
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
     const [size, setSize] = useState({ width: 300, height: 200 });
@@ -25,6 +25,7 @@ const AnnotationModal = memo(
     const lastMousePosition = useRef<{ x: number; y: number }>(initialPosition);
     const frameId = useRef<number | null>(null);
     const scrollOffset = useRef<number>(window.scrollY);
+    const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // Almacena el desplazamiento entre clic y modal
     const router = useRouter();
 
     const handleSave = () => {
@@ -44,10 +45,14 @@ const AnnotationModal = memo(
 
     const handleMouseMove = (e: MouseEvent) => {
       if (draggingMode) {
+        const mouseX = e.clientX - dragOffset.current.x;
+        const mouseY = e.clientY - dragOffset.current.y + scrollOffset.current;
+
         lastMousePosition.current = {
-          x: e.clientX - size.width / 2,
-          y: e.clientY - 20 + scrollOffset.current,
+          x: mouseX,
+          y: mouseY,
         };
+
         if (!frameId.current) {
           frameId.current = requestAnimationFrame(() => {
             updatePosition(
@@ -69,14 +74,22 @@ const AnnotationModal = memo(
       }
     };
 
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && draggingMode) {
+        setDraggingMode(false);
+      }
+    };
+
     useEffect(() => {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("click", handleDocumentClick);
+      document.addEventListener("keydown", handleEscapeKey); // Añadir evento keydown para la tecla Escape
       window.addEventListener("scroll", handleScroll);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("click", handleDocumentClick);
+        document.removeEventListener("keydown", handleEscapeKey); // Remover evento keydown
         window.removeEventListener("scroll", handleScroll);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,6 +100,14 @@ const AnnotationModal = memo(
 
       // Solo activar el draggingMode si el clic es en el div con la clase 'modal-header'
       if (target.closest(".modal-header")) {
+        const modalRect = target.closest("div")?.getBoundingClientRect();
+        if (modalRect) {
+          // Calcular desplazamiento del clic respecto al modal
+          dragOffset.current = {
+            x: e.clientX - modalRect.left,
+            y: e.clientY - modalRect.top,
+          };
+        }
         setDraggingMode((prev) => !prev);
       }
     };
@@ -97,10 +118,9 @@ const AnnotationModal = memo(
 
     const handleSaveAnnotation = async () => {
       if (annotations.trim() !== "") {
-        // Obtener el offset en X e Y
-        const modalHeaderHeight = 30; // Altura aproximada de la cabecera
-        const paddingLeft = 10; // Padding izquierdo del modal
-        const paddingTop = 10; // Padding superior del modal (si lo hay)
+        const modalHeaderHeight = 30;
+        const paddingLeft = 10;
+        const paddingTop = 10;
 
         const adjustedX = position.x + paddingLeft;
         const adjustedY = position.y + modalHeaderHeight + paddingTop;
@@ -119,8 +139,6 @@ const AnnotationModal = memo(
           left: position.x,
           top: position.y,
           zIndex: 1000,
-          border: "1px solid black",
-          backgroundColor: "white",
           padding: "10px",
           boxSizing: "border-box",
           position: "absolute",
@@ -130,63 +148,15 @@ const AnnotationModal = memo(
         <Resizable
           size={size}
           onResizeStop={handleResize}
-          minWidth={200}
+          minWidth={600}
           minHeight={100}
         >
-          <div
-            style={{ width: "100%", height: "100%", backgroundColor: "white" }}
-          >
-            <div
-              className="modal-header"
-              style={{
-                cursor: "move",
-                backgroundColor: "#f0f0f0",
-                padding: "5px",
-                display: "flex",
-                justifyContent: "space-between",
-                color: "black",
-              }}
-            >
-              <h3>Anotaciones</h3>
-              <button onClick={onClose} style={{ cursor: "pointer" }}>
-                Cerrar
-              </button>
-            </div>
-            {/* <textarea
-              value={annotations}
-              onChange={(e) => setAnnotations(e.target.value)}
-              style={{
-                width: "100%",
-                height: "80%",
-                marginTop: "10px",
-                boxSizing: "border-box",
-                color: "black",
-              }}
-              placeholder="Escribe tus anotaciones aquí..."
-            /> */}
-
-            <textarea
-              value={annotations}
-              onChange={(e) => setAnnotations(e.target.value)}
-              id="annotation"
-              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Write your thoughts here..."
-            ></textarea>
-            <span className="bg-white text-slate-900">
-              {JSON.stringify(position)}
-            </span>
-            <button
-              onClick={handleSaveAnnotation}
-              style={{
-                marginTop: "10px",
-                cursor: "pointer",
-                color: "black",
-                backgroundColor: "white",
-              }}
-            >
-              Guardar
-            </button>
-          </div>
+          <AnotationArea
+            onClose={onClose}
+            annotations={annotations}
+            handleSaveAnnotation={handleSaveAnnotation}
+            onChange={setAnnotations}
+          />
         </Resizable>
       </div>
     );
