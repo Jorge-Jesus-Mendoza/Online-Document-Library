@@ -1,6 +1,6 @@
 "use client";
 
-import { Viewer } from "@react-pdf-viewer/core";
+import { PageLayout, Viewer } from "@react-pdf-viewer/core";
 import { ZoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "pdfjs-dist/legacy/build/pdf.worker.entry";
@@ -16,6 +16,7 @@ interface Props {
   pageNavigationPluginInstance: PageNavigationPlugin;
   ShowViewer: boolean;
   handlePageChange: (e: { currentPage: number }) => void;
+  scale: number;
 }
 
 const PdfRenderer = memo(
@@ -26,9 +27,17 @@ const PdfRenderer = memo(
     pageNavigationPluginInstance,
     ShowViewer,
     handlePageChange,
+    scale,
   }: Props) => {
     const pdfData = `data:application/pdf;base64,${base64}`;
     const router = useRouter();
+
+    const pageLayout: PageLayout = {
+      transformSize: ({ size }) => ({
+        height: 840,
+        width: 586,
+      }),
+    };
 
     useEffect(() => {
       if (!ShowViewer) {
@@ -41,14 +50,19 @@ const PdfRenderer = memo(
         {children}
         <div className="mt-10">
           {ShowViewer && (
-            <>
+            <div className="pdf-viewer-container">
               <Viewer
                 fileUrl={pdfData}
                 plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
-                defaultScale={1}
+                defaultScale={1.5}
                 onPageChange={handlePageChange}
+                // pageLayout={pageLayout}
+                theme={{
+                  theme: "dark",
+                }}
+                enableSmoothScroll
               />
-            </>
+            </div>
           )}
         </div>
       </div>

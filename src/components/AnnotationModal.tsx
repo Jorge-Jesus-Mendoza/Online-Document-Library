@@ -97,7 +97,15 @@ const AnnotationModal = memo(
 
     const handleSaveAnnotation = async () => {
       if (annotations.trim() !== "") {
-        const note = await addNote(pdfId, annotations, position.x, position.y);
+        // Obtener el offset en X e Y
+        const modalHeaderHeight = 30; // Altura aproximada de la cabecera
+        const paddingLeft = 10; // Padding izquierdo del modal
+        const paddingTop = 10; // Padding superior del modal (si lo hay)
+
+        const adjustedX = position.x + paddingLeft;
+        const adjustedY = position.y + modalHeaderHeight + paddingTop;
+
+        const note = await addNote(pdfId, annotations, adjustedX, adjustedY);
         if (note) {
           onClose();
           router.refresh();
@@ -144,7 +152,7 @@ const AnnotationModal = memo(
                 Cerrar
               </button>
             </div>
-            <textarea
+            {/* <textarea
               value={annotations}
               onChange={(e) => setAnnotations(e.target.value)}
               style={{
@@ -155,7 +163,15 @@ const AnnotationModal = memo(
                 color: "black",
               }}
               placeholder="Escribe tus anotaciones aquí..."
-            />
+            /> */}
+
+            <textarea
+              value={annotations}
+              onChange={(e) => setAnnotations(e.target.value)}
+              id="annotation"
+              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Write your thoughts here..."
+            ></textarea>
             <span className="bg-white text-slate-900">
               {JSON.stringify(position)}
             </span>

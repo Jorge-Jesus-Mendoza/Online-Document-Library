@@ -27,7 +27,11 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showModal, setShowModal] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 100, y: 100 });
-  const [scale, setScale] = useState<number>(1);
+  const [scale, setScale] = useState<number>(1.5);
+  const [pdfDimensions, setPdfDimensions] = useState({
+    width: 406,
+    height: 614,
+  }); // Ajusta según dimensiones originales
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const zoomPluginInstance = zoomPlugin();
   const { zoomTo } = zoomPluginInstance;
@@ -51,7 +55,6 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     setCurrentPage(e.currentPage + 1);
   }, []);
 
-  // Función para aplicar el zoom con debounce
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedZoomTo = useCallback(
     debounce((scale: number) => {
@@ -61,21 +64,21 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   );
 
   const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.stopPropagation(); // Evita que el zoom dispare eventos como clic
+    event.stopPropagation();
     const newScale = Number(event.target.value);
-    if (newScale < 0.5 || newScale > 2) return; // Validar rango
+    if (newScale < 0.5 || newScale > 2) return;
     setScale(newScale);
     debouncedZoomTo(newScale);
   };
 
   return (
     <div className="w-full flex justify-center">
-      {/* Componente que muestra el PDF */}
       <PdfRenderer
         base64={base64}
         zoomPluginInstance={zoomPluginInstance}
         ShowViewer={ShowViewer}
         handlePageChange={handlePageChange}
+        scale={scale}
         pageNavigationPluginInstance={pageNavigationPluginInstance}
       >
         <div className="flex justify-center">
@@ -83,7 +86,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             <button onClick={() => setShowViewer(false)} className="mx-5">
               Inicio
             </button>
-            <input
+            {/* <input
               type="range"
               min="0.5"
               max="2"
@@ -102,7 +105,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
               step="0.1"
               aria-label="Zoom level input"
               style={{ color: "black" }}
-            />
+            /> */}
 
             <button onClick={handleOpenModal}>Abrir Anotaciones</button>
 
@@ -111,7 +114,6 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         </div>
       </PdfRenderer>
 
-      {/* Modal de anotaciones fuera del contenedor del PDF */}
       {showModal && (
         <AnnotationModal
           onClose={toggleModal}
@@ -120,22 +122,31 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         />
       )}
 
-      {/* Mostrar las anotaciones guardadas */}
       <div className="annotations-list">
-        {notes.map((annotation, index) => (
-          <p
-            key={index}
-            style={{
-              position: "absolute",
-              left: annotation.xPosition * scale, // Escalar la posición en X
-              top: annotation.yPosition * scale, // Escalar la posición en Y
-              transform: `scale(${scale})`, // Ajustar el tamaño del texto al zoom
-              transformOrigin: "top left", // Asegurarse de que el escalado se base en la esquina superior izquierda
-            }}
-          >
-            {annotation.content}
-          </p>
-        ))}
+        {ShowViewer &&
+          notes.map((annotation, index) => {
+            // const adjustedX =
+            //   ((annotation.xPosition - 746) / 406) * pdfDimensions.width * scale +
+            //   746;
+            // const adjustedY =
+            //   ((annotation.yPosition - 40) / 614) * pdfDimensions.height * scale +
+            //   40;
+
+            return (
+              <p
+                key={index}
+                style={{
+                  position: "absolute",
+                  left: annotation.xPosition, // Ajustado para la posición en X
+                  top: annotation.yPosition, // Ajustado para la posición en Y
+                  // transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }}
+              >
+                {annotation.content}
+              </p>
+            );
+          })}
       </div>
     </div>
   );
