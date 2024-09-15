@@ -15,6 +15,9 @@ type note = {
   createdAt: Date;
   xPosition: number;
   yPosition: number;
+  colorCode: string;
+  size: number;
+  isBold: boolean;
 };
 
 interface Props {
@@ -142,6 +145,9 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
                   top: annotation.yPosition, // Ajustado para la posición en Y
                   // transform: `scale(${scale})`,
                   transformOrigin: "top left",
+                  fontSize: annotation.size,
+                  color: annotation.colorCode,
+                  fontWeight: annotation.isBold ? "bold" : "normal",
                 }}
               >
                 {annotation.content}

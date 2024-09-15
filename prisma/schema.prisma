@@ -31,4 +31,7 @@ model Note {
   createdAt DateTime @default(now())
   xPosition Int
   yPosition Int
+  colorCode String
+  size      Int
+  isBold    Boolean  @default(false)
 }

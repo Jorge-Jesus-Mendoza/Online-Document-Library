@@ -3,13 +3,6 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-interface NoteProps {
-  pdfId: string;
-  content: string;
-  xPosition: number;
-  yPosition: number;
-}
-
 export const createPdf = async (file: File | null) => {
   const formData = new FormData();
   formData.append("file", file!);
@@ -28,7 +21,10 @@ export const addNote = async (
   pdfId: string,
   content: string,
   xPosition: number,
-  yPosition: number
+  yPosition: number,
+  size: number,
+  colorCode: string,
+  isBold: boolean
 ) => {
   const note = await prisma.note.create({
     data: {
@@ -36,6 +32,9 @@ export const addNote = async (
       content,
       xPosition,
       yPosition,
+      colorCode,
+      size,
+      isBold,
     },
   });
   if (note) return note;

@@ -20,17 +20,16 @@ const AnnotationModal = memo(
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
-    const [size, setSize] = useState({ width: 300, height: 200 });
+    const [size, setSize] = useState({ width: 300, height: 300 });
     const [draggingMode, setDraggingMode] = useState(false);
     const lastMousePosition = useRef<{ x: number; y: number }>(initialPosition);
     const frameId = useRef<number | null>(null);
     const scrollOffset = useRef<number>(window.scrollY);
     const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // Almacena el desplazamiento entre clic y modal
     const router = useRouter();
-
-    const handleSave = () => {
-      onClose();
-    };
+    const [Color, setColor] = useState<string>("#fff");
+    const [isBold, setIsBold] = useState<boolean>(false);
+    const [FontSize, setFontSize] = useState<number>(12);
 
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
       setSize({
@@ -119,13 +118,21 @@ const AnnotationModal = memo(
     const handleSaveAnnotation = async () => {
       if (annotations.trim() !== "") {
         const modalHeaderHeight = 30;
-        const paddingLeft = 10;
-        const paddingTop = 10;
+        const paddingLeft = 35;
+        const paddingTop = 35;
 
         const adjustedX = position.x + paddingLeft;
         const adjustedY = position.y + modalHeaderHeight + paddingTop;
 
-        const note = await addNote(pdfId, annotations, adjustedX, adjustedY);
+        const note = await addNote(
+          pdfId,
+          annotations,
+          adjustedX,
+          adjustedY,
+          FontSize,
+          Color,
+          isBold
+        );
         if (note) {
           onClose();
           router.refresh();
@@ -153,6 +160,12 @@ const AnnotationModal = memo(
         >
           <AnotationArea
             onClose={onClose}
+            isBold={isBold}
+            setColor={setColor}
+            Color={Color}
+            FontSize={FontSize}
+            setFontSize={setFontSize}
+            setIsBold={setIsBold}
             annotations={annotations}
             handleSaveAnnotation={handleSaveAnnotation}
             onChange={setAnnotations}
