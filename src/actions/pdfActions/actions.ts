@@ -40,6 +40,14 @@ export const addNote = async (
   if (note) return note;
 };
 
+export const deleteNote = async (id: string) => {
+  await prisma.note.delete({
+    where: {
+      id,
+    },
+  });
+};
+
 export const getNotes = async (id: string) => {
   const notes = await prisma.note.findMany({
     where: {

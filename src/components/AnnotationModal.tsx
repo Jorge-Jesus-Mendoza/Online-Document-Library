@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, memo } from "react";
 import { Resizable } from "re-resizable";
 import { addNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
-import AnotationArea from "./AnotationArea";
+import AnnotationArea from "./AnnotationArea";
 
 interface AnnotationModalProps {
   onClose: () => void;
@@ -20,7 +20,7 @@ const AnnotationModal = memo(
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
-    const [size, setSize] = useState({ width: 300, height: 300 });
+    const [size, setSize] = useState({ width: 600, height: 300 });
     const [draggingMode, setDraggingMode] = useState(false);
     const lastMousePosition = useRef<{ x: number; y: number }>(initialPosition);
     const frameId = useRef<number | null>(null);
@@ -115,6 +115,49 @@ const AnnotationModal = memo(
       e.stopPropagation(); // Evitar que el clic se propague al document
     };
 
+    const wrapTextToTextarea = (
+      text: string,
+      maxWidth: number,
+      fontSize: number,
+      isBold: boolean
+    ) => {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        throw new Error("No se pudo obtener el contexto del canvas");
+      }
+
+      // Configurar la fuente para el canvas basándonos en el tamaño y el estilo
+      context.font = `${isBold ? "bold" : "normal"} ${fontSize}px sans-serif`;
+      const adjustedMaxWidth = maxWidth - 48;
+
+      const words = text.split(" ");
+      let currentLine = "";
+      let formattedText = "";
+
+      words.forEach((word, index) => {
+        // Probar la nueva línea con la palabra actual
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const testLineWidth = context.measureText(testLine).width;
+
+        // Si la línea excede el ancho máximo, agrega un salto de línea
+        if (testLineWidth > adjustedMaxWidth) {
+          formattedText += currentLine.trim() + "\n"; // Agrega la línea con salto
+          currentLine = word; // Iniciar una nueva línea con la palabra actual
+        } else {
+          currentLine = testLine; // Si cabe en la línea, continúa con la misma
+        }
+      });
+
+      // Añadir la última línea
+      if (currentLine) {
+        formattedText += currentLine.trim();
+      }
+
+      return formattedText;
+    };
+
     const handleSaveAnnotation = async () => {
       if (annotations.trim() !== "") {
         const modalHeaderHeight = 30;
@@ -124,9 +167,17 @@ const AnnotationModal = memo(
         const adjustedX = position.x + paddingLeft;
         const adjustedY = position.y + modalHeaderHeight + paddingTop;
 
+        const formattedText = wrapTextToTextarea(
+          annotations,
+          size.width,
+          FontSize,
+          isBold
+        );
+        console.log(formattedText);
+
         const note = await addNote(
           pdfId,
-          annotations,
+          formattedText,
           adjustedX,
           adjustedY,
           FontSize,
@@ -158,7 +209,8 @@ const AnnotationModal = memo(
           minWidth={600}
           minHeight={100}
         >
-          <AnotationArea
+          {JSON.stringify(size)}
+          <AnnotationArea
             onClose={onClose}
             isBold={isBold}
             setColor={setColor}

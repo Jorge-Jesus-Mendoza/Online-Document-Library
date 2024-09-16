@@ -18,7 +18,7 @@ interface Props {
   FontSize: number;
 }
 
-const AnotationArea = ({
+const AnnotationArea = ({
   annotations,
   onChange,
   handleSaveAnnotation,
@@ -187,4 +187,4 @@ const AnotationArea = ({
   );
 };
 
-export default AnotationArea;
+export default AnnotationArea;

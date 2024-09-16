@@ -6,7 +6,9 @@ import AnnotationModal from "./AnnotationModal";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
-import AnotationArea from "./AnotationArea";
+import { deleteNote } from "@/actions/pdfActions/actions";
+import { useRouter } from "next/navigation";
+import { IoTrashOutline } from "react-icons/io5";
 
 type note = {
   id: string;
@@ -39,6 +41,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const zoomPluginInstance = zoomPlugin();
   const { zoomTo } = zoomPluginInstance;
+  const router = useRouter();
 
   const toggleModal = () => {
     setShowModal(!showModal);
@@ -73,6 +76,11 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     if (newScale < 0.5 || newScale > 2) return;
     setScale(newScale);
     debouncedZoomTo(newScale);
+  };
+
+  const handleDeleteNote = async (id: string) => {
+    await deleteNote(id);
+    router.refresh();
   };
 
   return (
@@ -137,21 +145,39 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             //   40;
 
             return (
-              <p
+              <div
                 key={index}
+                className="flex items-center"
                 style={{
                   position: "absolute",
-                  left: annotation.xPosition, // Ajustado para la posición en X
-                  top: annotation.yPosition, // Ajustado para la posición en Y
                   // transform: `scale(${scale})`,
                   transformOrigin: "top left",
-                  fontSize: annotation.size,
-                  color: annotation.colorCode,
-                  fontWeight: annotation.isBold ? "bold" : "normal",
+                  left: annotation.xPosition, // Ajustado para la posición en X
+                  top: annotation.yPosition, // Ajustado para la posición en Y
                 }}
               >
-                {annotation.content}
-              </p>
+                <p
+                  style={{
+                    fontSize: annotation.size,
+                    color: annotation.colorCode,
+                    fontWeight: annotation.isBold ? "bold" : "normal",
+                  }}
+                >
+                  {annotation.content?.split("\n").map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      <br />
+                    </React.Fragment>
+                  ))}
+                  {/* {annotation.content} */}
+                </p>
+
+                <button onClick={() => handleDeleteNote(annotation.id)}>
+                  <div className="px-5">
+                    <IoTrashOutline color="red" size={25} />
+                  </div>
+                </button>
+              </div>
             );
           })}
       </div>
