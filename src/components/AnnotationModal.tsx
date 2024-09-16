@@ -27,7 +27,7 @@ const AnnotationModal = memo(
     const scrollOffset = useRef<number>(window.scrollY);
     const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // Almacena el desplazamiento entre clic y modal
     const router = useRouter();
-    const [Color, setColor] = useState<string>("#fff");
+    const [Color, setColor] = useState<string>("#000000");
     const [isBold, setIsBold] = useState<boolean>(false);
     const [FontSize, setFontSize] = useState<number>(12);
 
@@ -209,7 +209,6 @@ const AnnotationModal = memo(
           minWidth={600}
           minHeight={100}
         >
-          {JSON.stringify(size)}
           <AnnotationArea
             onClose={onClose}
             isBold={isBold}
