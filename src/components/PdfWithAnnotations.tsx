@@ -9,6 +9,10 @@ import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 import { deleteNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
 import { IoTrashOutline } from "react-icons/io5";
+import { HiOutlineAnnotation } from "react-icons/hi";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { IoIosOptions } from "react-icons/io";
+import SideNavigationMenu from "./SideNavigationMenu";
 
 type note = {
   id: string;
@@ -93,9 +97,14 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         scale={scale}
         pageNavigationPluginInstance={pageNavigationPluginInstance}
       >
-        <div className="flex justify-center">
-          <div className="flex bg-red-400 fixed mb-10 z-10">
-            <button onClick={() => setShowViewer(false)} className="mx-5">
+        <div className="w-full z-10 flex justify-between fixed">
+          <SideNavigationMenu pdfBase64={base64} />
+
+          <div className="p-2 flex w-4/6 justify-between  mb-10  bg-gray-100 dark:bg-gray-700 rounded-b-xl shadow-md">
+            <button
+              onClick={() => setShowViewer(false)}
+              className="inline-flex justify-center items-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+            >
               Inicio
             </button>
             {/* <input
@@ -118,10 +127,20 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
               aria-label="Zoom level input"
               style={{ color: "black" }}
             /> */}
+            <span className="inline-flex justify-center items-center p-2 text-gray-500 rounded dark:text-gray-400 ">
+              Pagina Actual: {currentPage}
+            </span>
 
-            <button onClick={handleOpenModal}>Abrir Anotaciones</button>
+            <button
+              onClick={handleOpenModal}
+              className="inline-flex justify-center items-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+            >
+              <HiOutlineAnnotation size={25} />
+            </button>
+          </div>
 
-            <span>Pagina Actual: {currentPage}</span>
+          <div className="p-3 mr-5">
+            <IoIosOptions size={40} />
           </div>
         </div>
       </PdfRenderer>

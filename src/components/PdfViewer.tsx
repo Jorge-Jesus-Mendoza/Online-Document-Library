@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import * as pdfjs from "pdfjs-dist";
-import "pdfjs-dist/build/pdf.worker.min.mjs"; // Importa directamente el worker
+import "pdfjs-dist/legacy/build/pdf.worker.entry"; // Importa directamente el worker
 
 interface Props {
   pdfSrc: string;
@@ -10,9 +10,6 @@ interface Props {
 
 const PdfViewer = ({ pdfSrc }: Props) => {
   const [pdf, setPdf] = useState<pdfjs.PDFDocumentProxy | null>(null);
-  const [scale, setScale] = useState(1);
-  const [bgColor, setBgColor] = useState("#f0f0f0");
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
 
   useEffect(() => {
@@ -57,7 +54,7 @@ const PdfViewer = ({ pdfSrc }: Props) => {
         return;
       }
       const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({ scale: 0.5 });
       const canvas = canvasRefs.current[pageNum - 1];
       if (canvas) {
         const context = canvas.getContext("2d");
@@ -81,36 +78,22 @@ const PdfViewer = ({ pdfSrc }: Props) => {
 
   return (
     <div>
-      <div>
-        <label>
-          Background Color:
-          <input
-            type="color"
-            value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
-          />
-        </label>
-        <label>
-          Font Size:
-          <input
-            type="range"
-            min="0.5"
-            max="2"
-            step="0.1"
-            value={scale}
-            onChange={(e) => setScale(Number(e.target.value))}
-          />
-        </label>
-      </div>
       {pdf &&
         Array.from({ length: pdf.numPages }, (_, index) => (
-          <canvas
+          <div
             key={index}
-            ref={(el) => {
-              canvasRefs.current[index] = el;
-            }}
-            style={{ backgroundColor: "#f0f0f0", marginBottom: "20px" }}
-          />
+            className="flex flex-col rounded-lg justify-center cursor-pointer text-gray-700 hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
+          >
+            <span className="text-center">{index + 1}</span>
+
+            <canvas
+              ref={(el) => {
+                canvasRefs.current[index] = el;
+              }}
+              style={{ marginBottom: "20px" }}
+              className="p-5"
+            />
+          </div>
         ))}
     </div>
   );

@@ -132,16 +132,18 @@ const AnnotationArea = ({
                 />
               </svg>
             </button>
-            <input
-              type="number"
-              className="custom-number flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal focus:outline-none focus:ring-0 max-w-[2.5rem] text-center"
-              placeholder=""
-              min={1}
-              // onChange={handleChangeSizeFromTextInput}
-              onChange={(e) => setFontSize(Number(e.target.value))}
-              value={FontSize}
-              required
-            />
+            <div className="bg-gray-50  dark:bg-gray-700">
+              <input
+                type="number"
+                className={`custom-number flex-shrink-0 text-gray-900 dark:text-white border-0 bg-transparent text-sm font-normal focus:outline-none focus:ring-0 max-w-[2.5rem] text-center bg-gray-50`}
+                placeholder=""
+                min={1}
+                // onChange={handleChangeSizeFromTextInput}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+                value={FontSize}
+                required
+              />
+            </div>
             <button
               type="button"
               id="increment-button"

@@ -46,7 +46,7 @@ const PdfRenderer = memo(
     }, [ShowViewer, router]);
 
     return (
-      <div className="w-4/6 bg-blue-300">
+      <div className="w-full h-full">
         {children}
         <div className="mt-10">
           {ShowViewer && (

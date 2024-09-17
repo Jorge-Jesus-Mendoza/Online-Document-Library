@@ -1,4 +1,5 @@
 import { getNotes, getPdfData } from "@/actions/pdfActions/actions";
+import PdfViewer from "@/components/PdfViewer";
 import PdfWithAnnotations from "@/components/PdfWithAnnotations";
 
 interface Props {
