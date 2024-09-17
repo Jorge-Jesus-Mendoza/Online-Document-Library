@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import PdfRenderer from "./PdfRenderer";
-import AnnotationModal from "./AnnotationModal";
+import AnnotationModal from "./Annotations/AnnotationModal";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";

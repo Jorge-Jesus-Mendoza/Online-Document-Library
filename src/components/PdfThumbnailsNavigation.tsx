@@ -8,7 +8,7 @@ interface Props {
   pdfSrc: string;
 }
 
-const PdfViewer = ({ pdfSrc }: Props) => {
+const PdfThumbnailsNavigation = ({ pdfSrc }: Props) => {
   const [pdf, setPdf] = useState<pdfjs.PDFDocumentProxy | null>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
 
@@ -99,4 +99,4 @@ const PdfViewer = ({ pdfSrc }: Props) => {
   );
 };
 
-export default PdfViewer;
+export default PdfThumbnailsNavigation;

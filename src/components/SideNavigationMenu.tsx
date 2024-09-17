@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-import PdfViewer from "./PdfViewer";
+import PdfThumbnailsNavigation from "./PdfThumbnailsNavigation";
 
 interface Props {
   pdfBase64: string;
@@ -52,7 +52,7 @@ const SideNavigationMenu = ({ pdfBase64 }: Props) => {
         aria-label="Sidebar"
       >
         <div className="h-full w-full p-5 overflow-y-auto">
-          <PdfViewer pdfSrc={pdfBase64} />
+          <PdfThumbnailsNavigation pdfSrc={pdfBase64} />
         </div>
       </aside>
     </div>
