@@ -4,9 +4,10 @@ import PdfThumbnailsNavigation from "./PdfThumbnailsNavigation";
 
 interface Props {
   pdfBase64: string;
+  jumpToPage: (pageIndex: number) => void;
 }
 
-const SideNavigationMenu = ({ pdfBase64 }: Props) => {
+const SideNavigationMenu = ({ pdfBase64, jumpToPage }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null); // Referencia al menú lateral
 
@@ -52,7 +53,7 @@ const SideNavigationMenu = ({ pdfBase64 }: Props) => {
         aria-label="Sidebar"
       >
         <div className="h-full w-full p-5 overflow-y-auto">
-          <PdfThumbnailsNavigation pdfSrc={pdfBase64} />
+          <PdfThumbnailsNavigation pdfSrc={pdfBase64} jumpToPage={jumpToPage} />
         </div>
       </aside>
     </div>

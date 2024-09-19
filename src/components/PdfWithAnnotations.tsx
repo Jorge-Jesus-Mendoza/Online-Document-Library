@@ -86,6 +86,8 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     await deleteNote(id);
     router.refresh();
   };
+  const { GoToFirstPage, CurrentPageInput, jumpToNextPage, jumpToPage } =
+    pageNavigationPluginInstance;
 
   return (
     <div className="w-full flex justify-center">
@@ -98,7 +100,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         pageNavigationPluginInstance={pageNavigationPluginInstance}
       >
         <div className="w-full z-10 flex justify-between fixed">
-          <SideNavigationMenu pdfBase64={base64} />
+          <SideNavigationMenu pdfBase64={base64} jumpToPage={jumpToPage} />
 
           <div className="p-2 flex w-4/6 justify-between  mb-10  bg-gray-100 dark:bg-gray-700 rounded-b-xl shadow-md">
             <button

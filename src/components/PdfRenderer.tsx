@@ -48,9 +48,15 @@ const PdfRenderer = memo(
     return (
       <div className="w-full h-full">
         {children}
+
+        {/* <div className="fixed flex w-full bg-green-300 justify-center z-10">
+          <CurrentPageInput />
+          <GoToFirstPage />
+          <button onClick={() => jumpToNextPage()}>Test</button>
+        </div> */}
         <div className="mt-10">
           {ShowViewer && (
-            <div className="pdf-viewer-container">
+            <div className="pdf-viewer-container " style={{ height: "100vh" }}>
               <Viewer
                 fileUrl={pdfData}
                 plugins={[zoomPluginInstance, pageNavigationPluginInstance]}

@@ -6,9 +6,10 @@ import "pdfjs-dist/legacy/build/pdf.worker.entry"; // Importa directamente el wo
 
 interface Props {
   pdfSrc: string;
+  jumpToPage: (pageIndex: number) => void;
 }
 
-const PdfThumbnailsNavigation = ({ pdfSrc }: Props) => {
+const PdfThumbnailsNavigation = ({ pdfSrc, jumpToPage }: Props) => {
   const [pdf, setPdf] = useState<pdfjs.PDFDocumentProxy | null>(null);
   const canvasRefs = useRef<(HTMLCanvasElement | null)[]>([]);
 
@@ -81,6 +82,7 @@ const PdfThumbnailsNavigation = ({ pdfSrc }: Props) => {
       {pdf &&
         Array.from({ length: pdf.numPages }, (_, index) => (
           <div
+            onClick={() => jumpToPage(index)}
             key={index}
             className="flex flex-col rounded-lg justify-center cursor-pointer text-gray-700 hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
           >
