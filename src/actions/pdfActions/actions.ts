@@ -1,21 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-
-export const createPdf = async (file: File | null) => {
-  const formData = new FormData();
-  formData.append("file", file!);
-  console.log("🚀 ~ createPdf ~ formData:", formData);
-
-  //   const updatedPdf = await prisma.pdfFile.create({
-  //     data: { ...formData },
-  //   });
-
-  //   revalidatePath("/");
-
-  //   return updatedPdf;
-};
 
 export const addNote = async (
   pdfId: string,
@@ -24,7 +9,8 @@ export const addNote = async (
   yPosition: number,
   size: number,
   colorCode: string,
-  isBold: boolean
+  isBold: boolean,
+  page: number
 ) => {
   const note = await prisma.note.create({
     data: {
@@ -35,6 +21,7 @@ export const addNote = async (
       colorCode,
       size,
       isBold,
+      page,
     },
   });
   if (note) return note;

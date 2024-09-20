@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PdfRenderer from "./PdfRenderer";
 import AnnotationModal from "./Annotations/AnnotationModal";
 import { debounce } from "lodash";
@@ -13,6 +13,7 @@ import { HiOutlineAnnotation } from "react-icons/hi";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosOptions } from "react-icons/io";
 import SideNavigationMenu from "./SideNavigationMenu";
+import Note from "./Annotations/Note";
 
 type note = {
   id: string;
@@ -24,6 +25,7 @@ type note = {
   colorCode: string;
   size: number;
   isBold: boolean;
+  page: number;
 };
 
 interface Props {
@@ -42,6 +44,8 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     width: 406,
     height: 614,
   }); // Ajusta según dimensiones originales
+  const [containerScrollY, setContainerScrollY] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const zoomPluginInstance = zoomPlugin();
   const { zoomTo } = zoomPluginInstance;
@@ -77,7 +81,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const handleZoomChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     const newScale = Number(event.target.value);
-    if (newScale < 0.5 || newScale > 2) return;
+    if (newScale < 0.5 || newScale > 3) return;
     setScale(newScale);
     debouncedZoomTo(newScale);
   };
@@ -88,6 +92,25 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   };
   const { GoToFirstPage, CurrentPageInput, jumpToNextPage, jumpToPage } =
     pageNavigationPluginInstance;
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        setContainerScrollY(containerRef.current.scrollTop); // Obtener el desplazamiento del contenedor
+      }
+    };
+
+    const container = containerRef.current;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
 
   return (
     <div className="w-full flex justify-center">
@@ -109,26 +132,35 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             >
               Inicio
             </button>
-            {/* <input
-              type="range"
-              min="0.5"
-              max="2"
-              className="bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-              step="0.1"
-              value={scale}
-              onChange={handleZoomChange}
-              aria-label="Zoom level"
-            />
-            <input
-              type="number"
-              onChange={handleZoomChange}
-              value={scale}
-              min={0.5}
-              max={2}
-              step="0.1"
-              aria-label="Zoom level input"
-              style={{ color: "black" }}
-            /> */}
+            <div className="flex justify-center self-center items-center h-10 ">
+              <div className="bg-gray-50 dark:bg-gray-600 border dark:border-none flex items-center   h-full rounded-s-xl">
+                <div className=" flex items-center p-2">
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    className="bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 "
+                    step="0.1"
+                    value={scale}
+                    onChange={handleZoomChange}
+                    aria-label="Zoom level"
+                  />
+                </div>
+              </div>
+              <div className="h-full bg-gray-200 dark:bg-gray-800 flex items-center rounded-e-xl">
+                <input
+                  type="number"
+                  onChange={handleZoomChange}
+                  value={scale}
+                  min={0.5}
+                  max={3}
+                  step="0.1"
+                  className="custom-number flex-shrink-0 text-gray-900 dark:text-white items-center border-0 bg-transparent text-sm font-normal focus:outline-none focus:ring-0 max-w-[2.5rem] text-center bg-gray-50"
+                  aria-label="Zoom level input"
+                  // style={{ color: "black" }}
+                />
+              </div>
+            </div>
             <span className="inline-flex justify-center items-center p-2 text-gray-500 rounded dark:text-gray-400 ">
               Pagina Actual: {currentPage}
             </span>
@@ -152,6 +184,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
           onClose={toggleModal}
           initialPosition={modalPosition}
           pdfId={pdfId}
+          currentPage={currentPage}
         />
       )}
 
@@ -166,39 +199,14 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             //   40;
 
             return (
-              <div
-                key={index}
-                className="flex items-center"
-                style={{
-                  position: "absolute",
-                  // transform: `scale(${scale})`,
-                  transformOrigin: "top left",
-                  left: annotation.xPosition, // Ajustado para la posición en X
-                  top: annotation.yPosition, // Ajustado para la posición en Y
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: annotation.size,
-                    color: annotation.colorCode,
-                    fontWeight: annotation.isBold ? "bold" : "normal",
-                  }}
-                >
-                  {annotation.content?.split("\n").map((line, index) => (
-                    <React.Fragment key={index}>
-                      {line}
-                      <br />
-                    </React.Fragment>
-                  ))}
-                  {/* {annotation.content} */}
-                </p>
-
-                <button onClick={() => handleDeleteNote(annotation.id)}>
-                  <div className="px-5">
-                    <IoTrashOutline color="red" size={25} />
-                  </div>
-                </button>
-              </div>
+              annotation.page === currentPage && (
+                <Note
+                  containerScrollY={containerScrollY}
+                  {...annotation}
+                  key={annotation.id}
+                  handleDeleteNote={handleDeleteNote}
+                />
+              )
             );
           })}
       </div>

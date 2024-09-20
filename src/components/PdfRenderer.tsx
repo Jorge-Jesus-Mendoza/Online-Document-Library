@@ -1,12 +1,24 @@
 "use client";
 
-import { PageLayout, Viewer } from "@react-pdf-viewer/core";
+import {
+  Button,
+  PageLayout,
+  Tooltip,
+  Position,
+  Viewer,
+} from "@react-pdf-viewer/core";
 import { ZoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "pdfjs-dist/legacy/build/pdf.worker.entry";
 import { PageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 import { memo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  highlightPlugin,
+  MessageIcon,
+  RenderHighlightTargetProps,
+  HighlightArea,
+} from "@react-pdf-viewer/highlight";
 
 interface Props {
   base64: string;
@@ -45,32 +57,58 @@ const PdfRenderer = memo(
       }
     }, [ShowViewer, router]);
 
+    const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
+      <div
+        style={{
+          background: "#eee",
+          display: "flex",
+          position: "absolute",
+          left: `${props.selectionRegion.left}%`,
+          top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
+          transform: "translate(0, 8px)",
+          zIndex: 1,
+        }}
+      >
+        <Tooltip
+          position={Position.TopCenter}
+          target={
+            <Button onClick={props.toggle}>
+              <MessageIcon />
+            </Button>
+          }
+          content={() => <div style={{ width: "100px" }}>Add a note</div>}
+          offset={{ left: 0, top: -8 }}
+        />
+      </div>
+    );
+
+    const highlightPluginInstance = highlightPlugin({ renderHighlightTarget });
+
     return (
       <div className="w-full h-full">
         {children}
-
-        {/* <div className="fixed flex w-full bg-green-300 justify-center z-10">
-          <CurrentPageInput />
-          <GoToFirstPage />
-          <button onClick={() => jumpToNextPage()}>Test</button>
-        </div> */}
-        <div className="mt-10">
-          {ShowViewer && (
-            <div className="pdf-viewer-container " style={{ height: "100vh" }}>
-              <Viewer
-                fileUrl={pdfData}
-                plugins={[zoomPluginInstance, pageNavigationPluginInstance]}
-                defaultScale={1.5}
-                onPageChange={handlePageChange}
-                // pageLayout={pageLayout}
-                theme={{
-                  theme: "dark",
-                }}
-                enableSmoothScroll
-              />
-            </div>
-          )}
-        </div>
+        {ShowViewer && (
+          <div
+            className="pdf-viewer-container"
+            style={{ height: "100vh", overflow: "auto" }}
+          >
+            <Viewer
+              fileUrl={pdfData}
+              plugins={[
+                zoomPluginInstance,
+                pageNavigationPluginInstance,
+                highlightPluginInstance,
+              ]}
+              defaultScale={1.5}
+              onPageChange={handlePageChange}
+              // pageLayout={pageLayout}
+              theme={{
+                theme: "dark",
+              }}
+              enableSmoothScroll
+            />
+          </div>
+        )}
       </div>
     );
   }

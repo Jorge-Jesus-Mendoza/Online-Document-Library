@@ -33,5 +33,6 @@ model Note {
   yPosition Int
   colorCode String
   size      Int
+  page      Int
   isBold    Boolean  @default(false)
 }

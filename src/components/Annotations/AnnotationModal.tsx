@@ -10,6 +10,7 @@ interface AnnotationModalProps {
   onClose: () => void;
   pdfId: string;
   initialPosition?: { x: number; y: number }; // Haz que initialPosition sea opcional
+  currentPage: number;
 }
 
 const AnnotationModal = memo(
@@ -17,6 +18,7 @@ const AnnotationModal = memo(
     onClose,
     initialPosition = { x: 100, y: 100 },
     pdfId,
+    currentPage,
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
@@ -182,7 +184,8 @@ const AnnotationModal = memo(
           adjustedY,
           FontSize,
           Color,
-          isBold
+          isBold,
+          currentPage
         );
         if (note) {
           onClose();
@@ -201,7 +204,7 @@ const AnnotationModal = memo(
           boxSizing: "border-box",
           position: "absolute",
         }}
-        onClick={handleClickInComponent}
+        // onClick={handleClickInComponent}
       >
         <Resizable
           size={size}

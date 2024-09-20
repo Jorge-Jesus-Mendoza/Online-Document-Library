@@ -1,4 +1,5 @@
 import { getNotes, getPdfData } from "@/actions/pdfActions/actions";
+import HighlightExample from "@/components/HightlinghtExample";
 import PdfWithAnnotations from "@/components/PdfWithAnnotations";
 
 interface Props {
@@ -19,6 +20,7 @@ export default async function PdfViewerPage(props: Props) {
             pdfId={props.params.id}
             notes={notes}
           />
+          // <HighlightExample fileUrl={pdf} />
         )}
       </div>
     </div>
