@@ -51,7 +51,7 @@ const AnnotationArea = ({
       }`}
     >
       {/* modal-header class to enable dragginMode */}
-      <div className="flex items-center justify-between px-3 py-2 dark:border-gray-600">
+      <div className="modal-header flex items-center justify-between px-3 py-2 dark:border-gray-600">
         <button
           type="button"
           onClick={onClose}

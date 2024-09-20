@@ -6,11 +6,21 @@ import { addNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
 import AnnotationArea from "./AnnotationArea";
 
+type HighlightArea = {
+  height: number;
+  left: number;
+  pageIndex: number;
+  top: number;
+  width: number;
+};
+
 interface AnnotationModalProps {
   onClose: () => void;
   pdfId: string;
   initialPosition?: { x: number; y: number }; // Haz que initialPosition sea opcional
   currentPage: number;
+  highlightAreas: HighlightArea[];
+  quote: string;
 }
 
 const AnnotationModal = memo(
@@ -19,6 +29,8 @@ const AnnotationModal = memo(
     initialPosition = { x: 100, y: 100 },
     pdfId,
     currentPage,
+    highlightAreas,
+    quote,
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
@@ -32,13 +44,6 @@ const AnnotationModal = memo(
     const [Color, setColor] = useState<string>("#000000");
     const [isBold, setIsBold] = useState<boolean>(false);
     const [FontSize, setFontSize] = useState<number>(12);
-
-    const handleResize = (e: any, direction: any, ref: any, d: any) => {
-      setSize({
-        width: ref.offsetWidth,
-        height: ref.offsetHeight,
-      });
-    };
 
     const updatePosition = (x: number, y: number) => {
       setPosition({ x, y });
@@ -117,6 +122,13 @@ const AnnotationModal = memo(
       e.stopPropagation(); // Evitar que el clic se propague al document
     };
 
+    const handleResize = (e: any, direction: any, ref: any, d: any) => {
+      setSize({
+        width: ref.offsetWidth,
+        height: ref.offsetHeight,
+      });
+    };
+
     const wrapTextToTextarea = (
       text: string,
       maxWidth: number,
@@ -162,30 +174,32 @@ const AnnotationModal = memo(
 
     const handleSaveAnnotation = async () => {
       if (annotations.trim() !== "") {
-        const modalHeaderHeight = 30;
-        const paddingLeft = 35;
-        const paddingTop = 35;
-
-        const adjustedX = position.x + paddingLeft;
-        const adjustedY = position.y + modalHeaderHeight + paddingTop;
-
         const formattedText = wrapTextToTextarea(
           annotations,
           size.width,
           FontSize,
           isBold
         );
-        console.log(formattedText);
+
+        const parsedAreas = [
+          {
+            left: position.x,
+            top: position.y,
+            height: highlightAreas[0].height,
+            width: highlightAreas[0].width,
+            pageIndex: highlightAreas[0].pageIndex,
+          },
+        ];
 
         const note = await addNote(
           pdfId,
           formattedText,
-          adjustedX,
-          adjustedY,
           FontSize,
           Color,
           isBold,
-          currentPage
+          currentPage,
+          parsedAreas,
+          quote
         );
         if (note) {
           onClose();
@@ -194,17 +208,22 @@ const AnnotationModal = memo(
       }
     };
 
+    console.log("🚀 ~ handleSaveAnnotation ~ highlightAreas:", highlightAreas);
+    console.log("🚀 ~ renderHighlightContent ~ currentPage:", currentPage);
+
     return (
       <div
         style={{
-          left: position.x,
-          top: position.y,
+          left: `${position.x}%`,
+          top: `${position.y}%`,
+          // left: `${initialPosition.x}%`,
+          // top: `${initialPosition.y}%`,
           zIndex: 1000,
           padding: "10px",
           boxSizing: "border-box",
           position: "absolute",
         }}
-        // onClick={handleClickInComponent}
+        onClick={handleClickInComponent}
       >
         <Resizable
           size={size}
@@ -212,6 +231,7 @@ const AnnotationModal = memo(
           minWidth={600}
           minHeight={100}
         >
+          {/* <span className="text-purple-300">{JSON.stringify(position)}</span> */}
           <AnnotationArea
             onClose={onClose}
             isBold={isBold}

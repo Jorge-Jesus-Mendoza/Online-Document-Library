@@ -14,18 +14,19 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosOptions } from "react-icons/io";
 import SideNavigationMenu from "./SideNavigationMenu";
 import Note from "./Annotations/Note";
+import { HighlightArea } from "@react-pdf-viewer/highlight";
 
 type note = {
   id: string;
   pdfId: string;
   content: string;
   createdAt: Date;
-  xPosition: number;
-  yPosition: number;
   colorCode: string;
   size: number;
-  isBold: boolean;
   page: number;
+  isBold: boolean;
+  quote: string;
+  highlightAreas: any;
 };
 
 interface Props {
@@ -40,12 +41,6 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [modalPosition, setModalPosition] = useState({ x: 100, y: 100 });
   const [scale, setScale] = useState<number>(1.5);
-  const [pdfDimensions, setPdfDimensions] = useState({
-    width: 406,
-    height: 614,
-  }); // Ajusta según dimensiones originales
-  const [containerScrollY, setContainerScrollY] = useState(0);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const zoomPluginInstance = zoomPlugin();
   const { zoomTo } = zoomPluginInstance;
@@ -90,36 +85,20 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     await deleteNote(id);
     router.refresh();
   };
+
   const { GoToFirstPage, CurrentPageInput, jumpToNextPage, jumpToPage } =
     pageNavigationPluginInstance;
-  useEffect(() => {
-    const handleScroll = () => {
-      if (containerRef.current) {
-        setContainerScrollY(containerRef.current.scrollTop); // Obtener el desplazamiento del contenedor
-      }
-    };
-
-    const container = containerRef.current;
-
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, []);
 
   return (
     <div className="w-full flex justify-center">
       <PdfRenderer
+        notes={notes}
+        currentPage={currentPage}
+        pdfId={pdfId}
         base64={base64}
         zoomPluginInstance={zoomPluginInstance}
         ShowViewer={ShowViewer}
         handlePageChange={handlePageChange}
-        scale={scale}
         pageNavigationPluginInstance={pageNavigationPluginInstance}
       >
         <div className="w-full z-10 flex justify-between fixed">
@@ -179,16 +158,16 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         </div>
       </PdfRenderer>
 
-      {showModal && (
+      {/* {showModal && (
         <AnnotationModal
           onClose={toggleModal}
           initialPosition={modalPosition}
           pdfId={pdfId}
           currentPage={currentPage}
         />
-      )}
+      )} */}
 
-      <div className="annotations-list">
+      {/* <div className="annotations-list">
         {ShowViewer &&
           notes.map((annotation, index) => {
             // const adjustedX =
@@ -201,7 +180,6 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             return (
               annotation.page === currentPage && (
                 <Note
-                  containerScrollY={containerScrollY}
                   {...annotation}
                   key={annotation.id}
                   handleDeleteNote={handleDeleteNote}
@@ -209,7 +187,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
               )
             );
           })}
-      </div>
+      </div> */}
     </div>
   );
 };

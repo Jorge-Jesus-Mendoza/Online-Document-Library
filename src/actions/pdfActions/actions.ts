@@ -2,26 +2,34 @@
 
 import prisma from "@/lib/prisma";
 
+type HighlightArea = {
+  height: number;
+  left: number;
+  pageIndex: number;
+  top: number;
+  width: number;
+};
+
 export const addNote = async (
   pdfId: string,
   content: string,
-  xPosition: number,
-  yPosition: number,
   size: number,
   colorCode: string,
   isBold: boolean,
-  page: number
+  page: number,
+  highlightAreas: HighlightArea[],
+  quote: string
 ) => {
   const note = await prisma.note.create({
     data: {
       pdfId,
       content,
-      xPosition,
-      yPosition,
       colorCode,
       size,
       isBold,
       page,
+      highlightAreas,
+      quote,
     },
   });
   if (note) return note;

@@ -24,15 +24,15 @@ model PdfFile {
 }
 
 model Note {
-  id        String   @id @default(uuid())
-  pdfId     String
-  content   String
-  pdfFile   PdfFile  @relation(fields: [pdfId], references: [id])
-  createdAt DateTime @default(now())
-  xPosition Int
-  yPosition Int
-  colorCode String
-  size      Int
-  page      Int
-  isBold    Boolean  @default(false)
+  id             String   @id @default(uuid())
+  pdfId          String
+  content        String
+  pdfFile        PdfFile  @relation(fields: [pdfId], references: [id])
+  createdAt      DateTime @default(now())
+  colorCode      String
+  size           Int
+  page           Int
+  isBold         Boolean  @default(false)
+  quote          String
+  highlightAreas Json
 }
