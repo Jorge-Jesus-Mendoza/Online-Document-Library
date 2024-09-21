@@ -21,6 +21,7 @@ interface AnnotationModalProps {
   currentPage: number;
   highlightAreas: HighlightArea[];
   quote: string;
+  scale: number;
 }
 
 const AnnotationModal = memo(
@@ -31,6 +32,7 @@ const AnnotationModal = memo(
     currentPage,
     highlightAreas,
     quote,
+    scale,
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
@@ -49,8 +51,8 @@ const AnnotationModal = memo(
 
     const handleMouseMove = (e: MouseEvent) => {
       if (draggingMode) {
-        const deltaX = (e.clientX - dragOffset.current.x) / 8;
-        const deltaY = (e.clientY - dragOffset.current.y) / 8;
+        const deltaX = (e.clientX - dragOffset.current.x) / (6 * scale);
+        const deltaY = (e.clientY - dragOffset.current.y) / (8 * scale);
 
         setPosition((prevPosition) => ({
           x: prevPosition.x + deltaX,
@@ -98,7 +100,7 @@ const AnnotationModal = memo(
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      if (target.closest(".modal-header")) {
+      if (target.closest(".modal-header") && !draggingMode) {
         const modalRect = target.closest("div")?.getBoundingClientRect();
         if (modalRect) {
           // Almacenar el desplazamiento del clic dentro del modal
@@ -108,6 +110,8 @@ const AnnotationModal = memo(
           };
         }
         setDraggingMode(true);
+      } else if (target.closest(".modal-header") && draggingMode) {
+        setDraggingMode(false);
       }
     };
 
@@ -176,13 +180,14 @@ const AnnotationModal = memo(
 
         const parsedAreas = [
           {
-            left: position.x,
-            top: position.y,
-            height: highlightAreas[0].height,
-            width: highlightAreas[0].width,
+            left: position.x + 4,
+            top: position.y + 5,
+            height: size.height,
+            width: size.width,
             pageIndex: highlightAreas[0].pageIndex,
           },
         ];
+        console.log("🚀 ~ handleSaveAnnotation ~ parsedAreas:", parsedAreas);
 
         const note = await addNote(
           pdfId,
@@ -200,9 +205,6 @@ const AnnotationModal = memo(
         }
       }
     };
-
-    console.log("🚀 ~ handleSaveAnnotation ~ highlightAreas:", highlightAreas);
-    console.log("🚀 ~ renderHighlightContent ~ currentPage:", currentPage);
 
     return (
       <div

@@ -40,6 +40,7 @@ interface Props {
   base64: string;
   pdfId: string;
   notes: note[];
+  scale: number;
 
   children: JSX.Element;
   currentPage: number;
@@ -60,6 +61,7 @@ const PdfRenderer = memo(
     pdfId,
     currentPage,
     notes,
+    scale,
   }: Props) => {
     const pdfData = `data:application/pdf;base64,${base64}`;
     const router = useRouter();
@@ -109,6 +111,7 @@ const PdfRenderer = memo(
       return (
         <AnnotationModal
           onClose={onClose}
+          scale={scale}
           pdfId={pdfId}
           quote={props.selectedText}
           initialPosition={{
@@ -140,12 +143,18 @@ const PdfRenderer = memo(
                     style={Object.assign(
                       {},
                       {
-                        background: "yellow",
-                        opacity: 0.4,
+                        // background: "yellow",
+                        // opacity: 0.4,
                       },
                       props.getCssProperties(area, props.rotation)
                     )}
                   >
+                    {/* <span className="text-pink-400">
+                      {JSON.stringify(
+                        props.getCssProperties(area, props.rotation)
+                      )}
+                    </span> */}
+
                     <Note
                       handleDeleteNote={handleDeleteNote}
                       colorCode={note.colorCode}
@@ -175,7 +184,12 @@ const PdfRenderer = memo(
         {ShowViewer && (
           <div
             className="pdf-viewer-container"
-            style={{ height: "100vh", overflow: "auto" }}
+            style={{
+              height: "100vh",
+              overflow: "hidden",
+              display: "flex",
+              flexWrap: "nowrap",
+            }}
           >
             <Viewer
               fileUrl={pdfData}
@@ -184,7 +198,7 @@ const PdfRenderer = memo(
                 pageNavigationPluginInstance,
                 highlightPluginInstance,
               ]}
-              defaultScale={1.5}
+              defaultScale={scale}
               onPageChange={handlePageChange}
               // pageLayout={pageLayout}
               theme={{

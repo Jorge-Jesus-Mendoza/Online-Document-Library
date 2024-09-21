@@ -92,6 +92,7 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   return (
     <div className="w-full flex justify-center">
       <PdfRenderer
+        scale={scale}
         notes={notes}
         currentPage={currentPage}
         pdfId={pdfId}
