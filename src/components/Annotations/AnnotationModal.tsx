@@ -36,8 +36,6 @@ const AnnotationModal = memo(
     const [position, setPosition] = useState(initialPosition);
     const [size, setSize] = useState({ width: 600, height: 300 });
     const [draggingMode, setDraggingMode] = useState(false);
-    const lastMousePosition = useRef<{ x: number; y: number }>(initialPosition);
-    const frameId = useRef<number | null>(null);
     const scrollOffset = useRef<number>(window.scrollY);
     const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // Almacena el desplazamiento entre clic y modal
     const router = useRouter();
@@ -51,23 +49,19 @@ const AnnotationModal = memo(
 
     const handleMouseMove = (e: MouseEvent) => {
       if (draggingMode) {
-        const mouseX = e.clientX - dragOffset.current.x;
-        const mouseY = e.clientY - dragOffset.current.y + scrollOffset.current;
+        const deltaX = (e.clientX - dragOffset.current.x) / 8;
+        const deltaY = (e.clientY - dragOffset.current.y) / 8;
 
-        lastMousePosition.current = {
-          x: mouseX,
-          y: mouseY,
+        setPosition((prevPosition) => ({
+          x: prevPosition.x + deltaX,
+          y: prevPosition.y + deltaY,
+        }));
+
+        // Actualizar la posición inicial del mouse
+        dragOffset.current = {
+          x: e.clientX,
+          y: e.clientY,
         };
-
-        if (!frameId.current) {
-          frameId.current = requestAnimationFrame(() => {
-            updatePosition(
-              lastMousePosition.current.x,
-              lastMousePosition.current.y
-            );
-            frameId.current = null;
-          });
-        }
       }
     };
 
@@ -104,17 +98,16 @@ const AnnotationModal = memo(
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // Solo activar el draggingMode si el clic es en el div con la clase 'modal-header'
       if (target.closest(".modal-header")) {
         const modalRect = target.closest("div")?.getBoundingClientRect();
         if (modalRect) {
-          // Calcular desplazamiento del clic respecto al modal
+          // Almacenar el desplazamiento del clic dentro del modal
           dragOffset.current = {
-            x: e.clientX - modalRect.left,
-            y: e.clientY - modalRect.top,
+            x: e.clientX,
+            y: e.clientY,
           };
         }
-        setDraggingMode((prev) => !prev);
+        setDraggingMode(true);
       }
     };
 

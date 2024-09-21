@@ -6,7 +6,6 @@ import {
   Tooltip,
   Position,
   Viewer,
-  PrimaryButton,
 } from "@react-pdf-viewer/core";
 import { ZoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -18,7 +17,6 @@ import {
   highlightPlugin,
   MessageIcon,
   RenderHighlightTargetProps,
-  HighlightArea,
   RenderHighlightContentProps,
   RenderHighlightsProps,
 } from "@react-pdf-viewer/highlight";
@@ -82,7 +80,6 @@ const PdfRenderer = memo(
     const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
       <div
         style={{
-          background: "#eee",
           display: "flex",
           position: "absolute",
           left: `${props.selectionRegion.left}%`,
@@ -138,13 +135,13 @@ const PdfRenderer = memo(
                 .filter((area: any) => area.pageIndex === props.pageIndex)
                 .map((area: any, idx: any) => (
                   <div
-                    className="bg-red-900 z-50"
+                    className="z-50"
                     key={idx}
                     style={Object.assign(
                       {},
                       {
-                        // background: "yellow",
-                        // opacity: 0.4,
+                        background: "yellow",
+                        opacity: 0.4,
                       },
                       props.getCssProperties(area, props.rotation)
                     )}
