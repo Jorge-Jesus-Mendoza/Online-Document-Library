@@ -62,7 +62,6 @@ const AnnotationModal = memo(
           y: prevPosition.y + deltaY,
         }));
 
-        // Actualizar la posición inicial del mouse
         dragOffset.current = {
           x: e.clientX,
           y: e.clientY,
@@ -79,6 +78,29 @@ const AnnotationModal = memo(
       }
     };
 
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      if (target.closest(".modal-header")) {
+        const modalRect = target.closest("div")?.getBoundingClientRect();
+        if (modalRect) {
+          dragOffset.current = {
+            x: e.clientX,
+            y: e.clientY,
+          };
+        }
+        setDraggingMode(true);
+        disableScroll.on(); // Deshabilitar scroll
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (draggingMode) {
+        setDraggingMode(false);
+        disableScroll.off(); // Rehabilitar scroll
+      }
+    };
+
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && draggingMode) {
         setDraggingMode(false);
@@ -87,38 +109,20 @@ const AnnotationModal = memo(
 
     useEffect(() => {
       document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("click", handleDocumentClick);
-      document.addEventListener("keydown", handleEscapeKey); // Añadir evento keydown para la tecla Escape
+      document.addEventListener("mousedown", handleMouseDown); // Cambiado de "click" a "mousedown"
+      document.addEventListener("mouseup", handleMouseUp); // Escuchar el mouseup para detener el arrastre
+      document.addEventListener("keydown", handleEscapeKey);
       window.addEventListener("scroll", handleScroll);
 
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("click", handleDocumentClick);
-        document.removeEventListener("keydown", handleEscapeKey); // Remover evento keydown
+        document.removeEventListener("mousedown", handleMouseDown);
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("keydown", handleEscapeKey);
         window.removeEventListener("scroll", handleScroll);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [draggingMode, position]);
-
-    const handleDocumentClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-
-      if (target.closest(".modal-header") && !draggingMode) {
-        const modalRect = target.closest("div")?.getBoundingClientRect();
-        if (modalRect) {
-          // Almacenar el desplazamiento del clic dentro del modal
-          dragOffset.current = {
-            x: e.clientX,
-            y: e.clientY,
-          };
-        }
-        setDraggingMode(true);
-        disableScroll.on(); // prevent scrolling
-      } else if (target.closest(".modal-header") && draggingMode) {
-        setDraggingMode(false);
-        disableScroll.off(); // re-enable scroll
-      }
-    };
 
     const handleClickInComponent = (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation(); // Evitar que el clic se propague al document
@@ -144,7 +148,6 @@ const AnnotationModal = memo(
         throw new Error("No se pudo obtener el contexto del canvas");
       }
 
-      // Configurar la fuente para el canvas basándonos en el tamaño y el estilo
       context.font = `${isBold ? "bold" : "normal"} ${fontSize}px sans-serif`;
       const adjustedMaxWidth = maxWidth - 48;
 
@@ -153,20 +156,17 @@ const AnnotationModal = memo(
       let formattedText = "";
 
       words.forEach((word, index) => {
-        // Probar la nueva línea con la palabra actual
         const testLine = currentLine ? `${currentLine} ${word}` : word;
         const testLineWidth = context.measureText(testLine).width;
 
-        // Si la línea excede el ancho máximo, agrega un salto de línea
         if (testLineWidth > adjustedMaxWidth) {
-          formattedText += currentLine.trim() + "\n"; // Agrega la línea con salto
-          currentLine = word; // Iniciar una nueva línea con la palabra actual
+          formattedText += currentLine.trim() + "\n";
+          currentLine = word;
         } else {
-          currentLine = testLine; // Si cabe en la línea, continúa con la misma
+          currentLine = testLine;
         }
       });
 
-      // Añadir la última línea
       if (currentLine) {
         formattedText += currentLine.trim();
       }
@@ -215,8 +215,6 @@ const AnnotationModal = memo(
         style={{
           left: `${position.x}%`,
           top: `${position.y}%`,
-          // left: `${initialPosition.x}%`,
-          // top: `${initialPosition.y}%`,
           zIndex: 1000,
           padding: "10px",
           boxSizing: "border-box",
@@ -230,7 +228,6 @@ const AnnotationModal = memo(
           minWidth={600}
           minHeight={100}
         >
-          {/* <span className="text-purple-300">{JSON.stringify(position)}</span> */}
           <AnnotationArea
             onClose={onClose}
             isBold={isBold}
