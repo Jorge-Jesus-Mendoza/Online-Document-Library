@@ -5,6 +5,7 @@ import { Resizable } from "re-resizable";
 import { addNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
 import AnnotationArea from "./AnnotationArea";
+import disableScroll from "disable-scroll";
 
 type HighlightArea = {
   height: number;
@@ -15,6 +16,7 @@ type HighlightArea = {
 };
 
 interface AnnotationModalProps {
+  viewerRef: React.MutableRefObject<any>;
   onClose: () => void;
   pdfId: string;
   initialPosition?: { x: number; y: number }; // Haz que initialPosition sea opcional
@@ -33,6 +35,7 @@ const AnnotationModal = memo(
     highlightAreas,
     quote,
     scale,
+    viewerRef,
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
@@ -52,7 +55,7 @@ const AnnotationModal = memo(
     const handleMouseMove = (e: MouseEvent) => {
       if (draggingMode) {
         const deltaX = (e.clientX - dragOffset.current.x) / (6 * scale);
-        const deltaY = (e.clientY - dragOffset.current.y) / (8 * scale);
+        const deltaY = (e.clientY - dragOffset.current.y) / (8.5 * scale);
 
         setPosition((prevPosition) => ({
           x: prevPosition.x + deltaX,
@@ -110,8 +113,10 @@ const AnnotationModal = memo(
           };
         }
         setDraggingMode(true);
+        disableScroll.on(); // prevent scrolling
       } else if (target.closest(".modal-header") && draggingMode) {
         setDraggingMode(false);
+        disableScroll.off(); // re-enable scroll
       }
     };
 
@@ -187,7 +192,6 @@ const AnnotationModal = memo(
             pageIndex: highlightAreas[0].pageIndex,
           },
         ];
-        console.log("🚀 ~ handleSaveAnnotation ~ parsedAreas:", parsedAreas);
 
         const note = await addNote(
           pdfId,

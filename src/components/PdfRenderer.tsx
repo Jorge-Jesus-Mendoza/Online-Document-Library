@@ -11,7 +11,7 @@ import { ZoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "pdfjs-dist/legacy/build/pdf.worker.entry";
 import { PageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   highlightPlugin,
@@ -65,6 +65,7 @@ const PdfRenderer = memo(
   }: Props) => {
     const pdfData = `data:application/pdf;base64,${base64}`;
     const router = useRouter();
+    const viewerRef = useRef<any>(null);
 
     const pageLayout: PageLayout = {
       transformSize: ({ size }) => ({
@@ -110,6 +111,7 @@ const PdfRenderer = memo(
 
       return (
         <AnnotationModal
+          viewerRef={viewerRef}
           onClose={onClose}
           scale={scale}
           pdfId={pdfId}
@@ -179,7 +181,7 @@ const PdfRenderer = memo(
     });
 
     return (
-      <div className="w-full h-full">
+      <div className="w-full h-full" ref={viewerRef}>
         {children}
         {ShowViewer && (
           <div
