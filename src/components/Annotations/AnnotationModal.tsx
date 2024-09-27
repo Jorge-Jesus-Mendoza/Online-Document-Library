@@ -39,7 +39,7 @@ const AnnotationModal = memo(
   }: AnnotationModalProps) => {
     const [annotations, setAnnotations] = useState<string>("");
     const [position, setPosition] = useState(initialPosition);
-    const [size, setSize] = useState({ width: 600, height: 300 });
+    const [size, setSize] = useState({ width: 600, height: 200 });
     const [draggingMode, setDraggingMode] = useState(false);
     const scrollOffset = useRef<number>(window.scrollY);
     const dragOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 }); // Almacena el desplazamiento entre clic y modal
@@ -183,19 +183,24 @@ const AnnotationModal = memo(
           isBold
         );
 
+        const screenWidth = window.innerWidth; // El ancho de la pantalla en píxeles
+        const screenHeight = window.innerHeight; // El ancho de la pantalla en píxeles
+        const WidthPercentage = (size.width / screenWidth) * 100;
+        const heightPercentage = (size.height / screenHeight) * 100;
+
         const parsedAreas = [
           {
-            left: position.x + 4,
-            top: position.y + 5,
-            height: size.height,
-            width: size.width,
+            left: position.x,
+            top: position.y,
+            height: heightPercentage / 3,
+            width: WidthPercentage * 2.2,
             pageIndex: highlightAreas[0].pageIndex,
           },
         ];
 
         const note = await addNote(
           pdfId,
-          formattedText,
+          annotations,
           FontSize,
           Color,
           isBold,
@@ -222,25 +227,20 @@ const AnnotationModal = memo(
         }}
         onClick={handleClickInComponent}
       >
-        <Resizable
+        <AnnotationArea
           size={size}
-          onResizeStop={handleResize}
-          minWidth={600}
-          minHeight={100}
-        >
-          <AnnotationArea
-            onClose={onClose}
-            isBold={isBold}
-            setColor={setColor}
-            Color={Color}
-            FontSize={FontSize}
-            setFontSize={setFontSize}
-            setIsBold={setIsBold}
-            annotations={annotations}
-            handleSaveAnnotation={handleSaveAnnotation}
-            onChange={setAnnotations}
-          />
-        </Resizable>
+          handleResize={handleResize}
+          onClose={onClose}
+          isBold={isBold}
+          setColor={setColor}
+          Color={Color}
+          FontSize={FontSize}
+          setFontSize={setFontSize}
+          setIsBold={setIsBold}
+          annotations={annotations}
+          handleSaveAnnotation={handleSaveAnnotation}
+          onChange={setAnnotations}
+        />
       </div>
     );
   }

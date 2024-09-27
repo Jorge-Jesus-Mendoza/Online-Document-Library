@@ -1,5 +1,4 @@
 import React from "react";
-import { IoTrashOutline } from "react-icons/io5";
 
 interface Props {
   id: string;
@@ -11,43 +10,24 @@ interface Props {
   handleDeleteNote: (id: string) => Promise<void>;
 }
 
-const Note = ({
-  size,
-  colorCode,
-  content,
-  isBold,
-  handleDeleteNote,
-  id,
-}: Props) => {
+const Note = ({ size, colorCode, content, isBold }: Props) => {
   return (
-    <div
-      className="flex items-center"
+    <p
+      className=" p-10 mt-5"
       style={{
-        position: "absolute",
-        transformOrigin: "top left",
+        fontSize: size,
+        color: colorCode,
+        fontWeight: isBold ? "bold" : "normal",
+        userSelect: "none",
       }}
     >
-      <p
-        style={{
-          fontSize: size,
-          color: colorCode,
-          fontWeight: isBold ? "bold" : "normal",
-        }}
-      >
-        {content?.split("\n").map((line, index) => (
-          <React.Fragment key={index}>
-            {line}
-            <br />
-          </React.Fragment>
-        ))}
-      </p>
-
-      <button onClick={() => handleDeleteNote(id)}>
-        <div className="px-5">
-          <IoTrashOutline color="red" size={25} />
-        </div>
-      </button>
-    </div>
+      {content?.split("\n").map((line, index) => (
+        <React.Fragment key={index}>
+          {line}
+          <br />
+        </React.Fragment>
+      ))}
+    </p>
   );
 };
 

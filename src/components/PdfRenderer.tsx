@@ -23,6 +23,8 @@ import {
 import AnnotationModal from "./Annotations/AnnotationModal";
 import { deleteNote } from "@/actions/pdfActions/actions";
 import Note from "./Annotations/Note";
+import { IoTrashOutline } from "react-icons/io5";
+import NoteContainer from "./Annotations/NoteContainer";
 
 type note = {
   id: string;
@@ -139,24 +141,14 @@ const PdfRenderer = memo(
                 // Filter all highlights on the current page
                 .filter((area: any) => area.pageIndex === props.pageIndex)
                 .map((area: any, idx: any) => (
-                  <div
-                    className="z-50"
+                  <NoteContainer
                     key={idx}
-                    style={Object.assign(
-                      {},
-                      {
-                        // background: "yellow",
-                        // opacity: 0.4,
-                      },
-                      props.getCssProperties(area, props.rotation)
-                    )}
+                    cssProperties={props.getCssProperties}
+                    area={area}
+                    rotation={props.rotation}
+                    id={note.id}
+                    handleDeleteNote={handleDeleteNote}
                   >
-                    {/* <span className="text-pink-400">
-                      {JSON.stringify(
-                        props.getCssProperties(area, props.rotation)
-                      )}
-                    </span> */}
-
                     <Note
                       handleDeleteNote={handleDeleteNote}
                       colorCode={note.colorCode}
@@ -166,7 +158,7 @@ const PdfRenderer = memo(
                       pdfId={pdfId}
                       size={note.size}
                     />
-                  </div>
+                  </NoteContainer>
                 ))}
             </React.Fragment>
           ))}
