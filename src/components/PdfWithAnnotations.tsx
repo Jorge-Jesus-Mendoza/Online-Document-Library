@@ -1,20 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import PdfRenderer from "./PdfRenderer";
-import AnnotationModal from "./Annotations/AnnotationModal";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 import { deleteNote } from "@/actions/pdfActions/actions";
 import { useRouter } from "next/navigation";
-import { IoTrashOutline } from "react-icons/io5";
-import { HiOutlineAnnotation } from "react-icons/hi";
-import { GiHamburgerMenu } from "react-icons/gi";
 import { IoIosOptions } from "react-icons/io";
 import SideNavigationMenu from "./SideNavigationMenu";
-import Note from "./Annotations/Note";
-import { HighlightArea } from "@react-pdf-viewer/highlight";
+import { themePlugin } from "@react-pdf-viewer/theme";
+import ThemeToggle from "./LayoutComponents/ThemeToggle";
 
 type note = {
   id: string;
@@ -38,28 +34,15 @@ interface Props {
 const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const [ShowViewer, setShowViewer] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [showModal, setShowModal] = useState(false);
-  const [modalPosition, setModalPosition] = useState({ x: 100, y: 100 });
   const [scale, setScale] = useState<number>(1.5);
+
+  const [currentTheme, setCurrentTheme] = useState<string>(
+    localStorage.getItem("theme") as string
+  );
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const zoomPluginInstance = zoomPlugin();
+  const themePluginInstance = themePlugin();
   const { zoomTo } = zoomPluginInstance;
-  const router = useRouter();
-
-  const toggleModal = () => {
-    setShowModal(!showModal);
-  };
-
-  const handleOpenModal = () => {
-    const scrollY = window.scrollY || window.pageYOffset;
-    const initialPosition = {
-      x: 100, // Mantén una posición fija en X
-      y: scrollY + 100, // Usa el scroll actual para ajustar la posición Y
-    };
-
-    setModalPosition(initialPosition);
-    setShowModal(true);
-  };
 
   const handlePageChange = useCallback((e: { currentPage: number }) => {
     setCurrentPage(e.currentPage + 1);
@@ -81,17 +64,15 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
     debouncedZoomTo(newScale);
   };
 
-  const handleDeleteNote = async (id: string) => {
-    await deleteNote(id);
-    router.refresh();
-  };
-
   const { GoToFirstPage, CurrentPageInput, jumpToNextPage, jumpToPage } =
     pageNavigationPluginInstance;
 
   return (
     <div className="w-full flex justify-center">
       <PdfRenderer
+        currentTheme={currentTheme}
+        setCurrentTheme={setCurrentTheme}
+        themePluginInstance={themePluginInstance}
         scale={scale}
         notes={notes}
         currentPage={currentPage}
@@ -145,12 +126,16 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
               Pagina Actual: {currentPage}
             </span>
 
-            <button
+            {/* <button
               onClick={handleOpenModal}
               className="inline-flex justify-center items-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
             >
               <HiOutlineAnnotation size={25} />
-            </button>
+            </button> */}
+            <ThemeToggle
+              themePluginInstance={themePluginInstance}
+              setCurrentTheme={setCurrentTheme}
+            />
           </div>
 
           <div className="p-3 mr-5">

@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  PageLayout,
-  Tooltip,
-  Position,
-  Viewer,
-} from "@react-pdf-viewer/core";
+import { Button, Tooltip, Position, Viewer } from "@react-pdf-viewer/core";
 import { ZoomPlugin } from "@react-pdf-viewer/zoom";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "pdfjs-dist/legacy/build/pdf.worker.entry";
@@ -23,8 +17,9 @@ import {
 import AnnotationModal from "./Annotations/AnnotationModal";
 import { deleteNote } from "@/actions/pdfActions/actions";
 import Note from "./Annotations/Note";
-import { IoTrashOutline } from "react-icons/io5";
 import NoteContainer from "./Annotations/NoteContainer";
+import { ThemePlugin } from "@react-pdf-viewer/theme";
+import { ThemeContext } from "@react-pdf-viewer/core";
 
 type note = {
   id: string;
@@ -48,6 +43,9 @@ interface Props {
   currentPage: number;
   zoomPluginInstance: ZoomPlugin;
   pageNavigationPluginInstance: PageNavigationPlugin;
+  themePluginInstance: ThemePlugin;
+  currentTheme: string;
+  setCurrentTheme: React.Dispatch<React.SetStateAction<string>>;
   ShowViewer: boolean;
   handlePageChange: (e: { currentPage: number }) => void;
 }
@@ -64,18 +62,17 @@ const PdfRenderer = memo(
     currentPage,
     notes,
     scale,
+    themePluginInstance,
+    currentTheme,
+    setCurrentTheme,
   }: Props) => {
     const pdfData = `data:application/pdf;base64,${base64}`;
     const router = useRouter();
     const viewerRef = useRef<any>(null);
+    const { SwitchThemeButton } = themePluginInstance;
+    const themeContext = { currentTheme, setCurrentTheme };
 
-    const pageLayout: PageLayout = {
-      transformSize: ({ size }) => ({
-        height: 840,
-        width: 586,
-      }),
-    };
-
+    console.log("🚀 ~ themeContext:", themeContext);
     useEffect(() => {
       if (!ShowViewer) {
         router.push("/");
@@ -185,21 +182,21 @@ const PdfRenderer = memo(
               flexWrap: "nowrap",
             }}
           >
-            <Viewer
-              fileUrl={pdfData}
-              plugins={[
-                zoomPluginInstance,
-                pageNavigationPluginInstance,
-                highlightPluginInstance,
-              ]}
-              defaultScale={scale}
-              onPageChange={handlePageChange}
-              // pageLayout={pageLayout}
-              theme={{
-                theme: "dark",
-              }}
-              enableSmoothScroll
-            />
+            <ThemeContext.Provider value={themeContext}>
+              <Viewer
+                fileUrl={pdfData}
+                plugins={[
+                  themePluginInstance,
+                  zoomPluginInstance,
+                  pageNavigationPluginInstance,
+                  highlightPluginInstance,
+                ]}
+                defaultScale={scale}
+                onPageChange={handlePageChange}
+                theme={currentTheme}
+                enableSmoothScroll
+              />
+            </ThemeContext.Provider>
           </div>
         )}
       </div>
