@@ -5,12 +5,10 @@ import PdfRenderer from "./PdfRenderer";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
 import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
-import { deleteNote } from "@/actions/pdfActions/actions";
-import { useRouter } from "next/navigation";
-import { IoIosOptions } from "react-icons/io";
-import SideNavigationMenu from "./SideNavigationMenu";
+import SideNavigationMenu from "./LayoutComponents/SideNavigationMenu";
 import { themePlugin } from "@react-pdf-viewer/theme";
 import ThemeToggle from "./LayoutComponents/ThemeToggle";
+import SideSettingsMenu from "./LayoutComponents/SideSettingsMenu";
 
 type note = {
   id: string;
@@ -132,48 +130,12 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             >
               <HiOutlineAnnotation size={25} />
             </button> */}
-            <ThemeToggle
-              themePluginInstance={themePluginInstance}
-              setCurrentTheme={setCurrentTheme}
-            />
+            <ThemeToggle setCurrentTheme={setCurrentTheme} />
           </div>
 
-          <div className="p-3 mr-5">
-            <IoIosOptions size={40} />
-          </div>
+          <SideSettingsMenu pdfBase64={base64} jumpToPage={jumpToPage} />
         </div>
       </PdfRenderer>
-
-      {/* {showModal && (
-        <AnnotationModal
-          onClose={toggleModal}
-          initialPosition={modalPosition}
-          pdfId={pdfId}
-          currentPage={currentPage}
-        />
-      )} */}
-
-      {/* <div className="annotations-list">
-        {ShowViewer &&
-          notes.map((annotation, index) => {
-            // const adjustedX =
-            //   ((annotation.xPosition - 746) / 406) * pdfDimensions.width * scale +
-            //   746;
-            // const adjustedY =
-            //   ((annotation.yPosition - 40) / 614) * pdfDimensions.height * scale +
-            //   40;
-
-            return (
-              annotation.page === currentPage && (
-                <Note
-                  {...annotation}
-                  key={annotation.id}
-                  handleDeleteNote={handleDeleteNote}
-                />
-              )
-            );
-          })}
-      </div> */}
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import Form from "@/components/Form";
-import PdfCard from "@/components/PdfCard";
+import Form from "@/components/LayoutComponents/Form";
+import ThemeToggle from "@/components/LayoutComponents/ThemeToggle";
 import PdfGrid from "@/components/PdfGrid";
 import prisma from "@/lib/prisma";
 
@@ -16,7 +16,12 @@ export default async function Home() {
   // console.log("🚀 ~ Home ~ pdfList:", pdfList);
   return (
     <div>
-      <Form />
+      <div className="flex justify-between items-center">
+        <Form />
+        <div className="p-5">
+          <ThemeToggle iconSize={40} />
+        </div>
+      </div>
       <PdfGrid pdfList={pdfList} />
     </div>
   );

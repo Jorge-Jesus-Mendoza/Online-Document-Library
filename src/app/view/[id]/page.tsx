@@ -12,15 +12,13 @@ export default async function PdfViewerPage(props: Props) {
   const notes = await getNotes(props.params.id);
   return (
     <div>
-      <div className="flex justify-center">
-        {pdf && notes && (
-          <PdfWithAnnotations
-            base64={pdf}
-            pdfId={props.params.id}
-            notes={notes}
-          />
-        )}
-      </div>
+      {pdf && notes && (
+        <PdfWithAnnotations
+          base64={pdf}
+          pdfId={props.params.id}
+          notes={notes}
+        />
+      )}
     </div>
   );
 }

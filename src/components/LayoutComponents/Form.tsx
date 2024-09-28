@@ -32,7 +32,7 @@ const Form = () => {
           disabled={loading}
           className={`${
             !loading && "cursor-pointer"
-          } my-2 block w-full border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none
+          } my-2 text-slate-900 dark:text-gray-50 block w-full border border-gray-200 shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none
 file:bg-gray-50 file:border-0
 file:me-4
 file:py-3 file:px-4

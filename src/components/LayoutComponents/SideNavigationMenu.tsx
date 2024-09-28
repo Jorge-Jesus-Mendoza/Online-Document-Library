@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
-import PdfThumbnailsNavigation from "./PdfThumbnailsNavigation";
+import PdfThumbnailsNavigation from "../PdfThumbnailsNavigation";
 
 interface Props {
   pdfBase64: string;
@@ -47,7 +47,7 @@ const SideNavigationMenu = ({ pdfBase64, jumpToPage }: Props) => {
       {/* Menú lateral (aside) */}
       <aside
         ref={menuRef} // Asignamos la referencia al menú
-        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform transform bg-gray-50 dark:bg-gray-800 ${
+        className={`fixed top-0 left-0 z-40 w-64 h-screen transition-transform transform bg-gray-100 dark:bg-gray-800 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Sidebar"
