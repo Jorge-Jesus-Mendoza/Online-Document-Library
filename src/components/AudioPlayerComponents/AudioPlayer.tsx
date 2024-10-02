@@ -115,8 +115,18 @@ const AudioPlayer = ({ audioFile }: Props) => {
   };
 
   return (
-    <div id="waveform" ref={waveformRef} style={{ width: "100%" }}>
-      <div className="controls">
+    <div>
+      <div className="audio-info">
+        <span>
+          Playing: {audioFileName} <br />
+        </span>
+        <span>
+          Duration: {formatTime(duration)} | Current Time:{" "}
+          {formatTime(currentTime)} <br />
+        </span>
+      </div>
+      <div id="waveform" ref={waveformRef} style={{ width: "100%" }} />
+      <div className="controls flex justify-center items-center">
         <button onClick={handlePlayPause}>
           {playing ? <IoPause size={25} /> : <IoPlay size={25} />}
         </button>
@@ -143,15 +153,6 @@ const AudioPlayer = ({ audioFile }: Props) => {
         <button onClick={handleVolumeUp}>
           <IoVolumeHigh size={25} />
         </button>
-      </div>
-      <div className="audio-info">
-        <span>
-          Playing: {audioFileName} <br />
-        </span>
-        <span>
-          Duration: {formatTime(duration)} | Current Time:{" "}
-          {formatTime(currentTime)} <br />
-        </span>
       </div>
     </div>
   );
