@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { GiHamburgerMenu } from "react-icons/gi";
-import PdfThumbnailsNavigation from "../PdfThumbnailsNavigation";
 import { IoIosOptions } from "react-icons/io";
+import AudioPlayer from "../AudioPlayerComponents/AudioPlayer";
 
 interface Props {
   pdfBase64: string;
@@ -11,6 +10,7 @@ interface Props {
 const SideSettingsMenu = ({ pdfBase64, jumpToPage }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null); // Referencia al menú lateral
+  const audioFile = "/Chopin-Nocturne-op.9-No.2.mp3";
 
   // Función para alternar la visibilidad del menú lateral
   const toggleMenu = () => {
@@ -54,7 +54,7 @@ const SideSettingsMenu = ({ pdfBase64, jumpToPage }: Props) => {
         aria-label="Sidebar"
       >
         <div className="h-full w-full p-5 overflow-y-auto">
-          <PdfThumbnailsNavigation pdfSrc={pdfBase64} jumpToPage={jumpToPage} />
+          <AudioPlayer audioFile={audioFile} />
         </div>
       </aside>
     </div>

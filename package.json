@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@madzadev/audio-player": "^2.1.14",
     "@pdftron/webviewer": "^10.11.1",
     "@prisma/client": "^5.18.0",
     "@react-pdf-viewer/bookmark": "^3.12.0",
@@ -24,6 +23,8 @@
     "@react-pdf/renderer": "^3.4.4",
     "@simplepdf/react-embed-pdf": "^1.8.0",
     "@tanstack/react-table": "^8.20.5",
+    "@types/wavesurfer.js": "^6.0.12",
+    "@wavesurfer/react": "^1.0.7",
     "canvas": "^2.11.2",
     "disable-scroll": "^0.6.0",
     "lodash": "^4.17.21",
