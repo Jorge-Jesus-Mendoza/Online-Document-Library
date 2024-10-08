@@ -49,11 +49,10 @@ const AudioPlayer = ({ audioFile }: Props) => {
       const options = formWaveSurferOptions(waveformRef.current);
       wavesurfer.current = WaveSurfer.create(options);
 
-      try {
-        wavesurfer.current.load(audioFile);
-      } catch (error) {
+      // Intenta cargar el archivo de audio
+      wavesurfer.current.load(audioFile).catch((error) => {
         console.error("Error loading audio file:", error);
-      }
+      });
 
       const handleReady = () => {
         if (wavesurfer.current) {
@@ -69,16 +68,20 @@ const AudioPlayer = ({ audioFile }: Props) => {
         }
       };
 
-      // Attach listeners
+      // Adjunta los oyentes
       wavesurfer.current.on("ready", handleReady);
       wavesurfer.current.on("audioprocess", handleAudioProcess);
 
       return () => {
-        // Detach listeners
+        // Desmontar y limpiar
         if (wavesurfer.current) {
           wavesurfer.current.un("ready", handleReady);
           wavesurfer.current.un("audioprocess", handleAudioProcess);
+          if (wavesurfer.current.isPlaying()) {
+            wavesurfer.current.pause(); // Asegúrate de pausar antes de destruir
+          }
           wavesurfer.current.destroy();
+          wavesurfer.current = null; // Limpia la referencia
         }
       };
     }
@@ -86,7 +89,7 @@ const AudioPlayer = ({ audioFile }: Props) => {
 
   const handlePlayPause = () => {
     if (wavesurfer.current) {
-      setPlaying(!playing);
+      setPlaying((prev) => !prev);
       wavesurfer.current.playPause();
     }
   };
@@ -101,7 +104,7 @@ const AudioPlayer = ({ audioFile }: Props) => {
 
   const handleMute = () => {
     if (wavesurfer.current) {
-      setMuted(!muted);
+      setMuted((prev) => !prev);
       wavesurfer.current.setVolume(muted ? volume : 0);
     }
   };
@@ -116,44 +119,55 @@ const AudioPlayer = ({ audioFile }: Props) => {
 
   return (
     <div>
-      <div className="audio-info">
-        <span>
-          Playing: {audioFileName} <br />
-        </span>
-        <span>
-          Duration: {formatTime(duration)} | Current Time:{" "}
-          {formatTime(currentTime)} <br />
-        </span>
-      </div>
-      <div id="waveform" ref={waveformRef} style={{ width: "100%" }} />
-      <div className="controls flex justify-center items-center">
-        <button onClick={handlePlayPause}>
-          {playing ? <IoPause size={25} /> : <IoPlay size={25} />}
-        </button>
+      {waveformRef && (
+        <>
+          <div className="audio-info">
+            <span>
+              Playing: {audioFileName} <br />
+            </span>
+            <span>
+              Duration: {formatTime(duration)} | Current Time:{" "}
+              {formatTime(currentTime)} <br />
+            </span>
+          </div>
+          <div id="waveform" ref={waveformRef} style={{ width: "100%" }} />
+          <div className="controls flex justify-center items-center">
+            <button onClick={handlePlayPause}>
+              {playing ? <IoPause size={25} /> : <IoPlay size={25} />}
+            </button>
 
-        <button onClick={handleMute}>
-          {muted ? <IoVolumeOff size={25} /> : <IoVolumeMute size={25} />}
-        </button>
+            <button onClick={handleMute}>
+              {muted ? <IoVolumeOff size={25} /> : <IoVolumeMute size={25} />}
+            </button>
 
-        <input
-          type="range"
-          id="volume"
-          name="volume"
-          min={0}
-          max={1}
-          step={0.05}
-          value={muted ? 0 : volume}
-          onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-        />
+            <input
+              type="range"
+              id="volume"
+              name="volume"
+              min={0}
+              max={1}
+              step={0.05}
+              value={muted ? 0 : volume}
+              onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+            />
 
-        <button onClick={handleVolumeDown}>
-          <IoVolumeLow size={25} />
-        </button>
+            <button onClick={handleVolumeDown}>
+              <IoVolumeLow size={25} />
+            </button>
 
-        <button onClick={handleVolumeUp}>
-          <IoVolumeHigh size={25} />
-        </button>
-      </div>
+            <button onClick={handleVolumeUp}>
+              <IoVolumeHigh size={25} />
+            </button>
+          </div>
+        </>
+      )}
+      <iframe
+        className="p-5"
+        src="https://open.spotify.com/embed/track/7GhIk7Il098yCjg4BQjzvb"
+        width="300"
+        height="380"
+        allow="encrypted-media"
+      ></iframe>
     </div>
   );
 };
