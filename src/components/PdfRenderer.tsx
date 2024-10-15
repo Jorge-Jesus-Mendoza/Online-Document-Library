@@ -72,7 +72,6 @@ const PdfRenderer = memo(
     const { SwitchThemeButton } = themePluginInstance;
     const themeContext = { currentTheme, setCurrentTheme };
 
-    console.log("🚀 ~ themeContext:", themeContext);
     useEffect(() => {
       if (!ShowViewer) {
         router.push("/");

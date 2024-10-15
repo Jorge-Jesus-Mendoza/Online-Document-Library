@@ -59,12 +59,9 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     Spotify({
-      clientId: "19f1b5b8123f4d3cb10137564db68175",
-      clientSecret: "52d216d6d9c94014879b9700a267ccb1",
-      authorization:
-        "https://accounts.spotify.com/authorize?client_id=19f1b5b8123f4d3cb10137564db68175&response_type=code&redirect_uri=http://localhost:3000/api/auth/callback/spotify",
-      // authorization:
-      //   "https://accounts.spotify.com/authorize?scope=user-read-email,playlist-read-private,streaming,user-read-playback-state,user-modify-playback-state",
+      clientId: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID ?? "",
+      clientSecret: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_SECRET ?? "",
+      authorization: `https://accounts.spotify.com/authorize?client_id=${process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_SPOTIFY_CALLBACK}`,
     }),
   ],
   session: {
@@ -110,7 +107,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Si ha expirado, refresca el token
-      console.log("🚀 ~ jwt ~ test token");
 
       refreshAccessToken(token);
 
@@ -118,7 +114,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      console.log("test session");
       if (session?.user) {
         session.user.roles = token.roles as string[]; // Asegúrate de que sea un string[]
       }
@@ -141,8 +136,8 @@ async function refreshAccessToken(token: JWT) {
       },
       body: new URLSearchParams({
         grant_type: "client_credentials",
-        client_id: "19f1b5b8123f4d3cb10137564db68175",
-        client_secret: "52d216d6d9c94014879b9700a267ccb1",
+        client_id: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID ?? "",
+        client_secret: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_SECRET ?? "",
       }),
     });
 
@@ -159,7 +154,6 @@ async function refreshAccessToken(token: JWT) {
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Mantén el anterior si no hay nuevo
     };
   } catch (error) {
-    console.log("🚀 ~ refreshAccessToken ~ token:", token);
     console.error("Error refreshing access token", error);
     return {
       ...token,

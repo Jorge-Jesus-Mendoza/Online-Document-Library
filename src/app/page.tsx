@@ -8,9 +8,7 @@ import { getServerSession } from "next-auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  console.log("🚀 ~ Home ~ session:", session);
   const user = await getUserServerSession();
-  console.log("🚀 ~ Home ~ user:", user);
   const pdfList = await prisma.pdfFile.findMany({
     select: {
       id: true,
@@ -20,7 +18,6 @@ export default async function Home() {
       mimeType: true,
     },
   });
-  // console.log("🚀 ~ Home ~ pdfList:", pdfList);
   return (
     <div>
       <div className="flex justify-between items-center">
