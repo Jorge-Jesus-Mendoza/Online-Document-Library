@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IoIosOptions } from "react-icons/io";
 import AudioPlayer from "../AudioPlayerComponents/AudioPlayer";
+import { signIn } from "next-auth/react";
 
 interface Props {
   pdfBase64: string;
@@ -33,6 +34,10 @@ const SideSettingsMenu = ({ pdfBase64, jumpToPage }: Props) => {
       document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, []);
+  console.log(
+    "🚀 ~ SideSettingsMenu ~ process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID:",
+    process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID
+  );
 
   return (
     <div>
@@ -53,9 +58,21 @@ const SideSettingsMenu = ({ pdfBase64, jumpToPage }: Props) => {
         }`}
         aria-label="Sidebar"
       >
-        <div className="h-full w-full p-5 overflow-y-auto">
+        {/* <div className="h-full w-full p-5 overflow-y-auto">
           <AudioPlayer audioFile={audioFile} />
-        </div>
+        </div> */}
+
+        <button
+          type="button"
+          onClick={() =>
+            signIn("spotify", {
+              redirect: true,
+            })
+          }
+          className="my-2 text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+        >
+          Iniciar sesión con Spotify
+        </button>
       </aside>
     </div>
   );
