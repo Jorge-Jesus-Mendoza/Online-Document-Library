@@ -3,8 +3,10 @@ import { NextAuthOptions } from "next-auth";
 import prisma from "./lib/prisma";
 import { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GithubProvider from "next-auth/providers/github";
 import { signInEmailPassword } from "./auth/components/actions/auth-actions";
 import Spotify from "next-auth/providers/spotify";
+import Twitch from "next-auth/providers/twitch";
 import { JWT } from "next-auth/jwt";
 
 interface UserWithError {
@@ -61,7 +63,50 @@ export const authOptions: NextAuthOptions = {
     Spotify({
       clientId: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID ?? "",
       clientSecret: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_SECRET ?? "",
-      authorization: `https://accounts.spotify.com/authorize?client_id=${process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID}&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_SPOTIFY_CALLBACK}`,
+      authorization: {
+        url: "https://accounts.spotify.com/authorize",
+        params: {
+          scope:
+            "streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state",
+        },
+      },
+      async profile(profile) {
+        // Aquí puedes personalizar el perfil si es necesario
+        return {
+          id: profile.id,
+          email: profile.email,
+          name: profile.display_name,
+          image: profile.images?.[0]?.url,
+        };
+      },
+    }),
+    Twitch({
+      clientId: process.env.NEXT_PUBLIC_AUTH_TWITCH_ID ?? "",
+      clientSecret: process.env.NEXT_PUBLIC_AUTH_TWITCH_SECRET ?? "",
+      async profile(profile) {
+        // Aquí puedes personalizar el perfil si es necesario
+        return {
+          id: profile.sub,
+          email: profile.email,
+          name: profile.preferred_username,
+          image: profile.picture,
+        };
+      },
+    }),
+
+    GithubProvider({
+      clientId: process.env.GITHUB_ID ?? "",
+
+      clientSecret: process.env.GITHUB_SECRET ?? "",
+      async profile(profile) {
+        // Aquí puedes personalizar el perfil si es necesario
+        return {
+          id: profile.id,
+          email: profile.email,
+          name: profile.display_name,
+          image: profile.images?.[0]?.url,
+        };
+      },
     }),
   ],
   session: {
@@ -95,8 +140,7 @@ export const authOptions: NextAuthOptions = {
 
       if (account) {
         token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        // Asegurarse de que expires_in sea tratado como número
+        token.refreshToken = account.refresh_token as string; // Casting a string
         token.accessTokenExpires =
           Date.now() + (account.expires_in as number) * 1000;
       }
@@ -107,22 +151,28 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Si ha expirado, refresca el token
-
-      refreshAccessToken(token);
-
-      return token; // Asegúrate de retornar el token, que es de tipo `JWT`
+      return refreshAccessToken(token); // Asegúrate de retornar el token, que es de tipo `JWT`
     },
 
     async session({ session, token }) {
+      // console.log("🚀 ~ session ~ token:", token);
       if (session?.user) {
-        session.user.roles = token.roles as string[]; // Asegúrate de que sea un string[]
+        session.user.roles = token.roles as string[];
+        session.user.id = token?.id as string;
+        session.user.accessToken = token?.accessToken as string;
+        session.user.sub = token?.sub as string;
+        session.user.accessTokenExpires = token?.accessTokenExpires as number;
+        session.user.refreshToken = token?.refreshToken as string; // Asegúrate de que sea un string
+        session.user.exp = token?.exp as number;
+        session.user.iat = token?.iat as number;
+        session.user.jti = token?.jti as number;
       }
       return session;
     },
   },
 
   pages: {
-    signIn: "/admin/auth/logIn",
+    signIn: "/",
     newUser: "/admin/auth/singIn",
   },
 };
@@ -135,7 +185,8 @@ async function refreshAccessToken(token: JWT) {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        grant_type: "client_credentials",
+        grant_type: "refresh_token",
+        refresh_token: token.refreshToken as string, // Casting a string
         client_id: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_ID ?? "",
         client_secret: process.env.NEXT_PUBLIC_AUTH_SPOTIFY_SECRET ?? "",
       }),
@@ -151,7 +202,7 @@ async function refreshAccessToken(token: JWT) {
       ...token,
       accessToken: refreshedTokens.access_token,
       accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Mantén el anterior si no hay nuevo
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
     };
   } catch (error) {
     console.error("Error refreshing access token", error);

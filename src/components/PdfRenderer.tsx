@@ -48,6 +48,8 @@ interface Props {
   setCurrentTheme: React.Dispatch<React.SetStateAction<string>>;
   ShowViewer: boolean;
   handlePageChange: (e: { currentPage: number }) => void;
+  lastPage: number;
+  jumpToPage: (pageIndex: number) => void;
 }
 
 const PdfRenderer = memo(
@@ -65,6 +67,8 @@ const PdfRenderer = memo(
     themePluginInstance,
     currentTheme,
     setCurrentTheme,
+    lastPage,
+    jumpToPage,
   }: Props) => {
     const pdfData = `data:application/pdf;base64,${base64}`;
     const router = useRouter();
@@ -191,6 +195,7 @@ const PdfRenderer = memo(
                   highlightPluginInstance,
                 ]}
                 defaultScale={scale}
+                onDocumentLoad={() => jumpToPage(lastPage - 1)}
                 onPageChange={handlePageChange}
                 theme={currentTheme}
                 enableSmoothScroll

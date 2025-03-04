@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PdfRenderer from "./PdfRenderer";
 import { debounce } from "lodash";
 import { zoomPlugin } from "@react-pdf-viewer/zoom";
@@ -9,6 +9,7 @@ import SideNavigationMenu from "./LayoutComponents/SideNavigationMenu";
 import { themePlugin } from "@react-pdf-viewer/theme";
 import ThemeToggle from "./LayoutComponents/ThemeToggle";
 import SideSettingsMenu from "./LayoutComponents/SideSettingsMenu";
+import { updatePdfLastPage } from "@/actions/pdfActions/actions";
 
 type note = {
   id: string;
@@ -27,9 +28,32 @@ interface Props {
   base64: string;
   pdfId: string;
   notes: note[];
+  lastPage: number;
+  user:
+    | {
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+        roles?: string[];
+        id?: string;
+        sub?: string;
+        accessToken?: string;
+        refreshToken?: string;
+        accessTokenExpires?: number;
+        iat?: number;
+        exp?: number;
+        jti?: number;
+      }
+    | undefined;
 }
 
-const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
+const PdfWithAnnotations = ({
+  base64,
+  pdfId,
+  notes,
+  user,
+  lastPage,
+}: Props) => {
   const [ShowViewer, setShowViewer] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.5);
@@ -42,9 +66,14 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
   const themePluginInstance = themePlugin();
   const { zoomTo } = zoomPluginInstance;
 
-  const handlePageChange = useCallback((e: { currentPage: number }) => {
-    setCurrentPage(e.currentPage + 1);
-  }, []);
+  const handlePageChange = useCallback(
+    (e: { currentPage: number }) => {
+      const page = e.currentPage + 1;
+      setCurrentPage(page);
+      updatePdfLastPage(pdfId, page);
+    },
+    [pdfId]
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedZoomTo = useCallback(
@@ -74,6 +103,8 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
         scale={scale}
         notes={notes}
         currentPage={currentPage}
+        lastPage={lastPage}
+        jumpToPage={jumpToPage}
         pdfId={pdfId}
         base64={base64}
         zoomPluginInstance={zoomPluginInstance}
@@ -133,7 +164,11 @@ const PdfWithAnnotations = ({ base64, pdfId, notes }: Props) => {
             <ThemeToggle setCurrentTheme={setCurrentTheme} />
           </div>
 
-          <SideSettingsMenu pdfBase64={base64} jumpToPage={jumpToPage} />
+          <SideSettingsMenu
+            user={user}
+            pdfBase64={base64}
+            jumpToPage={jumpToPage}
+          />
         </div>
       </PdfRenderer>
     </div>

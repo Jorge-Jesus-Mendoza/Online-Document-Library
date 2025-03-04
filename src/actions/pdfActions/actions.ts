@@ -56,9 +56,22 @@ export const getNotes = async (id: string) => {
 export const getPdfData = async (id: string) => {
   const pdf = await prisma.pdfFile.findUnique({
     where: { id },
-    select: { data: true },
+    select: { data: true, lastPage: true },
   });
   if (pdf) {
-    return pdf.data.toString("base64");
+    // return pdf.data.toString("base64");
+    return {
+      data: pdf.data.toString("base64"),
+      lastPage: pdf.lastPage,
+    };
   }
+};
+
+export const updatePdfLastPage = async (id: string, page: number) => {
+  await prisma.pdfFile.update({
+    where: { id },
+    data: {
+      lastPage: page,
+    },
+  });
 };

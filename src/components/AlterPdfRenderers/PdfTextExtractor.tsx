@@ -13,7 +13,7 @@ interface PDFPage {
   key: number;
   width: number;
   height: number;
-  content: React.ReactNode[];
+  content: any;
 }
 
 interface ImageData {
@@ -105,6 +105,18 @@ const PdfTectExtractor: React.FC<Props> = ({ base64Pdf }) => {
         const page = await renderPage(pdfDoc, i);
         pages.push(page);
       }
+
+      let pdf = "";
+
+      pages.forEach((page) => {
+        if (page.content?.length > 0) {
+          page.content.forEach((data) => {
+            pdf = pdf + data.props.children;
+          });
+        }
+      });
+
+      console.log(pdf);
 
       setPdfPages(pages);
     };

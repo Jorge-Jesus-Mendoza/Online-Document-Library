@@ -23,7 +23,7 @@ const PdfCard = ({ id, name, lastAccess }: Props) => {
         const pdf = await getPdfData(`${id}`);
 
         if (pdf) {
-          setBase64Data(pdf);
+          setBase64Data(pdf.data);
         }
       }
     };

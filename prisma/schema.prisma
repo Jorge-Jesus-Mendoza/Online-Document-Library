@@ -21,6 +21,7 @@ model PdfFile {
   createdAt  DateTime  @default(now())
   lastAccess DateTime?
   notes      Note[]
+  lastPage   Int       @default(1)
 }
 
 model Note {

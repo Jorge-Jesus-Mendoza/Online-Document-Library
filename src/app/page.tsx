@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
+  console.log("🚀 ~ Home ~ session:", session);
   const user = await getUserServerSession();
   const pdfList = await prisma.pdfFile.findMany({
     select: {
@@ -21,8 +22,9 @@ export default async function Home() {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <Form />
-        <span className="text-gray-100">{JSON.stringify(session)}</span>
+        <Form user={user} />
+        {/* <span className="text-gray-100">{JSON.stringify(session)}</span> */}
+        {/* {user && <span className="text-gray-100">{JSON.stringify(user)}</span>} */}
         <div className="p-5">
           <ThemeToggle iconSize={40} />
         </div>

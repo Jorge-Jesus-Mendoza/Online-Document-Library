@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PdfFile" ADD COLUMN     "lastPage" INTEGER NOT NULL DEFAULT 1;
